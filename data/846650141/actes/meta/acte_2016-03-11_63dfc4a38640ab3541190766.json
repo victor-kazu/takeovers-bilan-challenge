@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-17T22:56:07+02:00",
+  "siren": "846650141",
+  "denomination": "ETABLISSEMENTS E.PECOU",
+  "dateDepot": "2016-03-11",
+  "numChrono": "725",
+  "nomDocument": "54742379000000_C0022A1001L082093D20160330H174057TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfc4a38640ab3541190766",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale mixte",
+      "decision": "Changement(s) de commissaire(s) aux comptes "
+    }
+  ]
+}

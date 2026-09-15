@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T05:07:31+02:00",
+  "siren": "445070311",
+  "denomination": "JACQUES BOCKEL SARL",
+  "dateDepot": "2017-12-01",
+  "numChrono": "2721",
+  "nomDocument": "l4NnuiwwQ5rp_C0022A1001L484288D20200303H221652TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e2481a916269756a095424",
+  "typeRdd": [
+    {
+      "typeActe": "Rapport du commissaire à la transformation",
+      "decision": "Rapport du commissaire à la transformation et du commissaire aux comptes sur la transformation de la SARL JACQUES BOCKEL en SAS "
+    }
+  ]
+}

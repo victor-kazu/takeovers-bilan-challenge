@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-23T19:34:04+02:00",
+  "siren": "035550318",
+  "denomination": "ORTELLI ET CIE",
+  "dateDepot": "2017-01-10",
+  "numChrono": "A2017/000092",
+  "nomDocument": "8m33NG5T4WoM_C0022A1001L659273D20170124H185232TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd089ede2a73e4f0a8143",
+  "typeRdd": [
+    {
+      "typeActe": "Extrait de procès-verbal d'assemblée générale mixte",
+      "decision": " Modification des commissaires aux comptes"
+    }
+  ]
+}

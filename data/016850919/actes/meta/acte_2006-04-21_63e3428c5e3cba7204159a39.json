@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T07:56:32+02:00",
+  "siren": "016850919",
+  "denomination": "NON RENSEIGNE",
+  "dateDepot": "2006-04-21",
+  "numChrono": "1720",
+  "nomDocument": "RBBVY092FlhG_RACT0600716148",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e3428c5e3cba7204159a39",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "MODIFICATION DES COMMISSAIRES AUX COMPTES "
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-23T19:33:21+02:00",
+  "siren": "026980508",
+  "denomination": "LES IMPRESSIONS DUMAS",
+  "dateDepot": "2010-07-06",
+  "numChrono": "3001839",
+  "nomDocument": "xJdU49dzPmeb_RACT2_026980508_7901_1969B00050_2010_300183901",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd01c95e7fbcd5f03d1f3",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale ordinaire",
+      "decision": "Changement de commissaire aux comptes suppléant "
+    }
+  ]
+}

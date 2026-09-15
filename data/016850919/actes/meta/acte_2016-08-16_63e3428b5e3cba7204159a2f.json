@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T07:56:30+02:00",
+  "siren": "016850919",
+  "denomination": "ETABLISSEMENTS JACQUENET MALIN",
+  "dateDepot": "2016-08-16",
+  "numChrono": "5338",
+  "nomDocument": "j2ZeNKOwkH4W_C0022A1001L780004D20161021H173701TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e3428b5e3cba7204159a2f",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Changement de président "
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+ "updatedAt": "2023-10-17T15:32:15+02:00",
+ "siren": "352890354",
+ "denomination": "AIR SYSTEM SERVICE",
+ "dateDepot": "2012-06-19",
+ "numChrono": "1740",
+ "nomDocument": "snDXKyW38zjc_RACT2_352890354_8201_1990B00007_2012_174001",
+ "confidentiality": "Public",
+ "deleted": false,
+ "id": "63dceb898640ab3541078b60",
+ "typeRdd": [
+  {
+   "typeActe": "Acte notarié",
+   "decision": "Mr Serge DUMAS et Mme Marie-Pierre DUMAS font donation à Melle Manon DUMAS de 48 parts sociales n) 1 à 24 et n° 100 à 123 "
+  },
+  {
+   "typeActe": "Procès-verbal d'assemblée générale extraordinaire"
+  },
+  {
+   "typeActe": "Statuts mis à jour"
+  }
+ ]
+}

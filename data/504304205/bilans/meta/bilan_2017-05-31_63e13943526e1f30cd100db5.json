@@ -1,0 +1,14 @@
+{
+  "updatedAt": "2024-03-29T21:52:50+01:00",
+  "siren": "504304205",
+  "denomination": "SO.ME.PROD",
+  "dateDepot": "2017-05-31",
+  "numChrono": "5621",
+  "nomDocument": "CA_504304205_1303_2008B02193_2016_5621",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e13943526e1f30cd100db5",
+  "dateCloture": "2016-12-31",
+  "typeBilan": "C",
+  "version": "1.0"
+}

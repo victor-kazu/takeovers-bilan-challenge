@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T21:25:51+02:00",
+  "siren": "328024377",
+  "denomination": "BERNACHON S.A.",
+  "dateDepot": "2019-12-30",
+  "numChrono": "A2019/042701",
+  "nomDocument": "ngCY2YEe67Sx_C0022A1001L625706D20200104H202902TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8ebb954febda17c19ee74",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale",
+      "decision": " Modification des commissaires aux comptes"
+    }
+  ]
+}

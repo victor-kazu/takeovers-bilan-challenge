@@ -1,0 +1,16 @@
+{
+  "updatedAt": "2023-10-18T05:07:31+02:00",
+  "siren": "445070311",
+  "denomination": "JACQUES BOCKEL SARL",
+  "dateDepot": "2003-07-25",
+  "numChrono": "1042",
+  "nomDocument": "tKgYlbMJDPWo_RACT0300277724",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e2481a916269756a095421",
+  "typeRdd": [
+    {
+      "typeActe": "Rapport du commissaire aux apports"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T07:56:30+02:00",
+  "siren": "016850919",
+  "denomination": "NON RENSEIGNE",
+  "dateDepot": "1993-01-20",
+  "numChrono": "151",
+  "nomDocument": "ON2hGz0B6IIf_RACT9300148523",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e3428c5e3cba7204159a35",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal du conseil d'administration",
+      "decision": "Modifications relatives au conseil d'administration "
+    }
+  ]
+}

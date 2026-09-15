@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-18T22:32:09+02:00",
+  "siren": "480489707",
+  "denomination": "ARCHEAN TECHNOLOGIES",
+  "dateDepot": "2013-02-12",
+  "numChrono": "336",
+  "nomDocument": "5984825000000_C0022A1001L064952D20141128H202946TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e9593a8be6eb9f9d257ebd",
+  "typeRdd": [
+    {
+      "typeActe": "Décision(s) du président",
+      "decision": "1899 avenue d'Italie 82000 Montauban "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

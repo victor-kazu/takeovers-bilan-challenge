@@ -1,0 +1,25 @@
+{
+  "updatedAt": "2023-10-18T05:07:31+02:00",
+  "siren": "445070311",
+  "denomination": "JACQUES BOCKEL SARL",
+  "dateDepot": "2003-10-21",
+  "numChrono": "1250",
+  "nomDocument": "QxkdeMkDiQQu_RACT0301010333",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e24819916269756a09541d",
+  "typeRdd": [
+    {
+      "typeActe": "Rapport du commissaire aux apports",
+      "decision": " Augmentation de capital"
+    },
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Augmentation de capital"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": " Augmentation de capital"
+    }
+  ]
+}

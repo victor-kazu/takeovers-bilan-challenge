@@ -1,0 +1,28 @@
+{
+  "updatedAt": "2023-10-18T07:56:33+02:00",
+  "siren": "015551401",
+  "denomination": "NON RENSEIGNE",
+  "dateDepot": "2009-02-03",
+  "numChrono": "547",
+  "nomDocument": "D5R27lzYM0Cz_RACT0900149050",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e3428fd0f29b5aaa0ced28",
+  "typeRdd": [
+    {
+      "typeActe": "Acte notarié",
+      "decision": "Cession de parts "
+    },
+    {
+      "typeActe": "Acte notarié",
+      "decision": "Donation de parts "
+    },
+    {
+      "typeActe": "Acte notarié",
+      "decision": "Donation entre vifs : M et Mme Désiré MUGNIER à leurs petits enfantsCession de parts : M et Mme Désiré MUGNIER à Cyril et Cédric MUGNIER "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

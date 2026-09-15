@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-18T21:25:51+02:00",
+  "siren": "328024377",
+  "denomination": "BERNACHON SAS",
+  "dateDepot": "2021-01-22",
+  "numChrono": "A2021/002683",
+  "nomDocument": "VVsZQhB35adS_C0022A1001L351091D20210128H070030TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8ebb954febda17c19ee75",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Modification de la dénomination de la personne morale Modification relative aux dirigeants d'une société Modification de la forme juridique ou du statut particulier"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": " Modification de la dénomination de la personne morale Modification relative aux dirigeants d'une société Modification de la forme juridique ou du statut particulier"
+    }
+  ]
+}

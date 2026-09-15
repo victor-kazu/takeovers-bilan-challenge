@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2023-10-18T07:56:31+02:00",
+  "siren": "016850919",
+  "denomination": "NON RENSEIGNE",
+  "dateDepot": "2005-11-23",
+  "numChrono": "4411",
+  "nomDocument": "e58fUBWD2Nae_RACT0500047949",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e3428c5e3cba7204159a36",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Transformation en SAS "
+    },
+    {
+      "typeActe": "Rapport du commissaire aux comptes"
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

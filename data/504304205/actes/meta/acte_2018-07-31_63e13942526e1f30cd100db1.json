@@ -1,0 +1,39 @@
+{
+  "updatedAt": "2023-10-18T02:12:12+02:00",
+  "siren": "504304205",
+  "denomination": "SO.ME.PROD",
+  "dateDepot": "2018-07-31",
+  "numChrono": "35188",
+  "nomDocument": "kKrOpLFs4I8e_C0022A1001L431413D20180828H203427TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e13942526e1f30cd100db1",
+  "typeRdd": [
+    {
+      "typeActe": "Rapport du commissaire aux comptes relatif à la transformation"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Modification(s) statutaire(s) "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Changement de forme juridique "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Nomination de président "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Transfert du siège social "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Changement relatif à l'objet social "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

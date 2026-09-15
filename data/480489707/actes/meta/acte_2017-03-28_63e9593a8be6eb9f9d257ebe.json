@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2023-10-18T22:32:09+02:00",
+  "siren": "480489707",
+  "denomination": "ARCHEAN TECHNOLOGIES",
+  "dateDepot": "2017-03-28",
+  "numChrono": "779",
+  "nomDocument": "3Ts7MevhDW4s_C0022A1001L018366D20170413H163933TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e9593a8be6eb9f9d257ebe",
+  "typeRdd": [
+    {
+      "typeActe": "Décision(s) du président",
+      "decision": "Réduction du capital social "
+    },
+    {
+      "typeActe": "Rapport du commissaire aux comptes"
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

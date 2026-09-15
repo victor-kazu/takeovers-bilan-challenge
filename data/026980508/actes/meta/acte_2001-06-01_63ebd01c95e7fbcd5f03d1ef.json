@@ -1,0 +1,24 @@
+{
+  "updatedAt": "2023-10-23T19:33:21+02:00",
+  "siren": "026980508",
+  "denomination": "LES IMPRESSIONS DUMAS",
+  "dateDepot": "2001-06-01",
+  "numChrono": "679",
+  "nomDocument": "eDWWoeja4a2I_RACT0100403732",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd01c95e7fbcd5f03d1ef",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale",
+      "decision": "Conversion du capital en euros "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale",
+      "decision": "Augmentation du capital social "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

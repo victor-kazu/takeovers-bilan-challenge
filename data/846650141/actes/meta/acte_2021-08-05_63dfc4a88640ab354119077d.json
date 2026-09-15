@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-17T22:56:08+02:00",
+  "siren": "846650141",
+  "denomination": "ETABLISSEMENTS E.PECOU",
+  "dateDepot": "2021-08-05",
+  "numChrono": "2643",
+  "nomDocument": "8NEiiM3yHAbb_C0022A1001L819406D20210811H072941TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfc4a88640ab354119077d",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Procès-verbal du conseil d'administration",
+      "decision": "Augmentation du capital social "
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T07:56:30+02:00",
+  "siren": "016850919",
+  "denomination": "ETABLISSEMENTS JACQUENET MALIN",
+  "dateDepot": "2017-09-12",
+  "numChrono": "5210",
+  "nomDocument": "UhLAikzuE7qo_C0022A1001L477126D20170928H180049TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e3428b5e3cba7204159a30",
+  "typeRdd": [
+    {
+      "typeActe": "Décision(s) de l'associé unique",
+      "decision": "Changement(s) de commissaire(s) aux comptes "
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "updatedAt": "2023-10-26T01:10:36+02:00",
+  "siren": "360500011",
+  "denomination": "LESUEUR & CIE",
+  "dateDepot": "2002-11-25",
+  "numChrono": "27583",
+  "nomDocument": "ZzJLVdCubORN_RACT0200950116",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63f103603f2ad069a613281d",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": "Divers "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Transfert du siège social d'un greffe extérieur 109 RUE DU DCOTEUR PIASCEKI, 76600 LE HAVRE "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Modification(s) statutaire(s) "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Changement relatif à l'objet social "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Changement de la dénomination sociale SA LESUEUR & CIE "
+    }
+  ]
+}

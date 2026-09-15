@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T04:18:33+02:00",
+  "siren": "820561470",
+  "denomination": "SARL PAUTET",
+  "dateDepot": "2016-09-23",
+  "numChrono": "6125",
+  "nomDocument": "7Kpprl5slGeI_C0022A1001L777789D20161021H173357TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e1f90ed0f29b5aaa069b70",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale ordinaire",
+      "decision": "Nomination(s) de gérant(s) "
+    }
+  ]
+}

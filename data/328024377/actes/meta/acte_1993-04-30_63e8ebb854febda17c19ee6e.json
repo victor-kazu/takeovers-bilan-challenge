@@ -1,0 +1,25 @@
+{
+  "updatedAt": "2023-10-18T21:25:51+02:00",
+  "siren": "328024377",
+  "denomination": "BERNACHON SA",
+  "dateDepot": "1993-04-30",
+  "numChrono": "6301",
+  "nomDocument": "Mqo3tUhZCpnU_RACT9300258066",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8ebb854febda17c19ee6e",
+  "typeRdd": [
+    {
+      "typeActe": "Déclaration de conformité",
+      "decision": " Modification des statuts"
+    },
+    {
+      "typeActe": "Acte",
+      "decision": " Modification des statuts"
+    },
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Modification des statuts"
+    }
+  ]
+}

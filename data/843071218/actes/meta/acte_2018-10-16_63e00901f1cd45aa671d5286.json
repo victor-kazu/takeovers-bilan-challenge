@@ -1,0 +1,22 @@
+{
+  "updatedAt": "2023-10-17T23:27:15+02:00",
+  "siren": "843071218",
+  "denomination": "ARCHEAN LABS",
+  "dateDepot": "2018-10-16",
+  "numChrono": "8574",
+  "nomDocument": "vx0df5eYeY1f_C0022A1001L529814D20181102H230416TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e00901f1cd45aa671d5286",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts constitutifs"
+    },
+    {
+      "typeActe": "Liste des souscripteurs"
+    },
+    {
+      "typeActe": "Attestation bancaire"
+    }
+  ]
+}

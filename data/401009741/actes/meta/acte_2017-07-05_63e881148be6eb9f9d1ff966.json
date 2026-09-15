@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-18T20:16:36+02:00",
+  "siren": "401009741",
+  "denomination": "CREAMANDE",
+  "dateDepot": "2017-07-05",
+  "numChrono": "5676",
+  "nomDocument": "i2AYKdtUPZoo_C0022A1001L220765D20170724H183434TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e881148be6eb9f9d1ff966",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Augmentation du capital social "
+    }
+  ]
+}

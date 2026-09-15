@@ -1,0 +1,17 @@
+{
+ "updatedAt": "2023-10-17T15:32:15+02:00",
+ "siren": "352890354",
+ "denomination": "AIR SYSTEM SERVICE",
+ "dateDepot": "2021-06-17",
+ "numChrono": "2041",
+ "nomDocument": "Be61Kg9UB6kW_C0022A1001L184369D20210622H194550TPIJTES003PDBOR",
+ "confidentiality": "Public",
+ "deleted": false,
+ "id": "63dceb8a8640ab3541078b66",
+ "typeRdd": [
+  {
+   "typeActe": "Rapport du commissaire aux comptes relatif à la transformation",
+   "decision": "transformation de la société en SAS "
+  }
+ ]
+}

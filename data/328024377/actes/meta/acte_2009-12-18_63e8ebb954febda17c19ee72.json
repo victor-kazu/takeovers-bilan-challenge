@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-18T21:25:51+02:00",
+  "siren": "328024377",
+  "denomination": "BERNACHON S.A.",
+  "dateDepot": "2009-12-18",
+  "numChrono": "26507",
+  "nomDocument": "fAqbomgVu0sE_RACT2_328024377_6901_1983B01173_2009_265071",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8ebb954febda17c19ee72",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal du conseil d'administration",
+      "decision": " Modification relative aux dirigeants d'une société"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale mixte",
+      "decision": " Modification relative aux dirigeants d'une société"
+    }
+  ]
+}

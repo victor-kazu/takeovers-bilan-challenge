@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-23T19:33:18+02:00",
+  "siren": "026980508",
+  "denomination": "LES IMPRESSIONS DUMAS",
+  "dateDepot": "2016-07-07",
+  "numChrono": "2127",
+  "nomDocument": "wSWtA1ZlsA0u_C0022A1001L129403D20160726H173044TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd01a95e7fbcd5f03d1e6",
+  "typeRdd": [
+    {
+      "typeActe": "Rapport du commissaire aux apports et à la fusion",
+      "decision": "DE LA STE GRAPHI-TILT (STE ABSORBEE) PAR L'IMPRESSIONS DUMAS (STE ABSORBANTE) "
+    }
+  ]
+}

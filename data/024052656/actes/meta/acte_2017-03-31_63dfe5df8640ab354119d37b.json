@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-17T23:10:26+02:00",
+  "siren": "024052656",
+  "denomination": "LUNA",
+  "dateDepot": "2017-03-31",
+  "numChrono": "216",
+  "nomDocument": "bFVFBjDX12Pm_C0023A1001M000092D20200511H153645TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfe5df8640ab354119d37b",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Transfert siège social et établissement principal Nomination de gérant (s) Augmentation de capital"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale",
+      "decision": " Transfert siège social et établissement principal Nomination de gérant (s) Augmentation de capital"
+    }
+  ]
+}

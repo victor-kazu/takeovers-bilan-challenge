@@ -1,0 +1,20 @@
+{
+ "updatedAt": "2023-10-17T15:32:15+02:00",
+ "siren": "352890354",
+ "denomination": "AIR SYSTEM SERVICE",
+ "dateDepot": "2013-06-04",
+ "numChrono": "1321",
+ "nomDocument": "5721787000000_C0022A1001L068091D20141128H193418TPIJTES003PDBOR",
+ "confidentiality": "Public",
+ "deleted": false,
+ "id": "63dceb888640ab3541078b58",
+ "typeRdd": [
+  {
+   "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+   "decision": "Augmentation du capital social "
+  },
+  {
+   "typeActe": "Statuts mis à jour"
+  }
+ ]
+}

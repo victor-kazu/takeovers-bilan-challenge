@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-17T23:27:15+02:00",
+  "siren": "843071218",
+  "denomination": "ARCHEAN LABS",
+  "dateDepot": "2019-11-04",
+  "numChrono": "6194",
+  "nomDocument": "4sMTU0cWfrbo_C0022A1001L383873D20191109H204211TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e00901f1cd45aa671d5287",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "20 place Prax Paris 82000 MONTAUBAN "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

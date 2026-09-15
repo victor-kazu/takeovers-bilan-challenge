@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "about": "Event codes in scope for the actes challenge: a reduced subset of the Takeovers taxonomy covering only capital and shareholder movements. Everything else in these documents — auditors, officers, address changes, name changes — is out of scope.",
+  "scoring_note": "CAPITAL_DUAL_CLASS is not scored. Emit it if you find it; leaving it out costs you nothing.",
+  "codes": [
+    {
+      "event_code": "CAPITAL_INCREASE",
+      "category": "CAPITAL",
+      "scored": true,
+      "description": "An increase of the company's nominal share capital. The increase can be realised by: apport en numéraire (cash subscription, optionally par-value-only), apport en nature (in-kind contribution requiring a CAA report), incorporation de réserves (pure bookkeeping move, pro-rata free attribution), compensation de créance (debt offset L.225-146), or instrument conversion (BSPCE / BSA / OCA exercise). Multi-step AGEs combine mechanisms in one event with ``mechanism = MIXED``. References: L. 223-32 to L. 223-34 (SARL), L. 225-127 to L. 225-149-3 (SA), L. 227-13 (SAS), L. 223-30 al. 4 (SARL reserve-incorporation).",
+      "payload_fields": {
+        "amount_eur": "number",
+        "capital_after_eur": "number",
+        "method": "numeraire | incorporation de reserves | apport en nature | autre"
+      }
+    },
+    {
+      "event_code": "CAPITAL_DECREASE",
+      "category": "CAPITAL",
+      "scored": true,
+      "description": "A reduction of the company's nominal share capital. The reduction can be realised by: rachat et annulation d'actions (buyback-and-cancel, typically an investor exit), diminution de la valeur nominale (par-value reduction with the share count unchanged), réduction motivée par les pertes (loss absorption — the cumulative deficit is offset against capital, no creditor-opposition window), or a réduction du nombre d'actions / regroupement (reverse-split without buyback). A voluntary reduction (non motivée par les pertes) triggers the L.225-205 régime: a 30-day creditor-opposition window via the greffe and a CAC report. References: L. 225-204 to L. 225-214 (SA / SAS), L. 225-205 (creditor opposition), R. 233-34 (certificate of non-opposition), L. 223-34 (SARL).",
+      "payload_fields": {
+        "amount_eur": "number",
+        "capital_after_eur": "number",
+        "method": "numeraire | incorporation de reserves | apport en nature | autre"
+      }
+    },
+    {
+      "event_code": "SHAREHOLDER_ENTRY",
+      "category": "SHAREHOLDER",
+      "scored": true,
+      "description": "A natural or legal person joins the company's cap table for the first time. The trigger can be a cession bringing in a non-associé who is formally agréé (art. L.223-13 SARL / L.228-23 SA), a capital increase with a new reserved subscriber, an apport en nature that issues new shares to the contributor, a donation, or a merger (universal succession — the absorbing entity inherits the holdings en bloc, no agrément). This event captures the **consequence** (X is now an associé); the **mechanism** is its own co-firing event (SHAREHOLDER_SHARE_TRANSFER / CAPITAL_INCREASE / COMPANY_MERGER), recorded here only as the `mechanism` enum for provenance.",
+      "payload_fields": {
+        "holder_name": "string",
+        "holder_siren": "string, optional",
+        "shares": "number, optional"
+      }
+    },
+    {
+      "event_code": "SHAREHOLDER_END",
+      "category": "SHAREHOLDER",
+      "scored": true,
+      "description": "An associé exits the company's cap table — they no longer hold any shares. The trigger can be a cession of all remaining shares, a retrait, a capital decrease by buyback that retires the exiting associé's shares, death, or a merger (the associé entity is absorbed; its shares transfer en bloc by universal succession). Symmetric to SHAREHOLDER_ENTRY: this captures the **consequence** (X is no longer an associé), the **mechanism** is its own co-firing event. Most often *reconstructed* by diffing the pre- and post-act capital-allocation article rather than stated by an explicit phrase.",
+      "payload_fields": {
+        "holder_name": "string",
+        "holder_siren": "string, optional",
+        "shares": "number, optional"
+      }
+    },
+    {
+      "event_code": "SHAREHOLDER_SHARE_TRANSFER",
+      "category": "SHAREHOLDER",
+      "scored": true,
+      "description": "Transfer of share ownership between two parties: a *cédant* (seller) hands over a defined number of shares (parts sociales for SARL/EURL/ SCI, actions for SAS/SA) to a *cessionnaire* (buyer). The transfer can be onéreuse (paid), à titre gratuit (donation), apport en nature (parts contributed to a third entity), or 1 € symbolique (related- party / RJ-era pattern). References: arts. L. 221-13 (SNC), L. 223-14 (SARL), L. 228-23 (SA), L. 227-9 (SAS) of Code de commerce. This event captures the **mechanics** of the transfer (parties, share count, price/value, transfer kind). The downstream cap-table consequences — a new actor entering, an exiting actor leaving — are derived by the snapshot folder (Phase 4) and emitted as ``SHAREHOLDER_ENTRY`` / ``SHAREHOLDER_END`` events at projection time, not here.",
+      "payload_fields": {
+        "from_name": "string",
+        "to_name": "string",
+        "shares": "number",
+        "price_eur": "number, optional"
+      }
+    },
+    {
+      "event_code": "CAPITAL_DUAL_CLASS",
+      "category": "CAPITAL",
+      "scored": false,
+      "description": "Creation of one or more new share classes — typically actions de préférence — carrying avantages particuliers (preferential dividend, liquidation priority, TRI/IRR floor, mandatory conversion, specific voting). Each created class becomes a ShareCategoryDef on the snapshot. The operative signal is \"Création d'une/deux nouvelle(s) catégorie(s) d'actions de préférence dites <CODES>\"; the bare mention in a competence list or a conversion of existing classes is NOT a creation. Often co-fires CAPITAL_INCREASE (the new class is issued via a capital increase) and SHAREHOLDER_ENTRY. Distinct from CAPITAL_SHARE_RECLASS (conversion of existing classes without a new one).",
+      "payload_fields": {
+        "class_name": "string",
+        "description": "string"
+      }
+    }
+  ]
+}

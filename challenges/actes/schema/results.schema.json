@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Actes challenge — results.json",
+  "description": "The file we read. Put it at the root of your repository, named exactly results.json.",
+  "type": "object",
+  "required": ["siren", "events", "capital_timeline"],
+  "additionalProperties": true,
+  "properties": {
+    "siren": { "const": "480489707" },
+
+    "events": {
+      "type": "array",
+      "description": "Capital and shareholder movements you found, one entry each. Codes are defined in event_codes.json.",
+      "items": {
+        "type": "object",
+        "required": ["event_id", "event_code", "event_date", "payload", "source"],
+        "additionalProperties": true,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "Any id you like, unique within this file. Referenced from capital_timeline[].caused_by."
+          },
+          "event_code": {
+            "type": "string",
+            "enum": [
+              "CAPITAL_INCREASE",
+              "CAPITAL_DECREASE",
+              "SHAREHOLDER_ENTRY",
+              "SHAREHOLDER_END",
+              "SHAREHOLDER_SHARE_TRANSFER",
+              "CAPITAL_DUAL_CLASS"
+            ]
+          },
+          "event_date": {
+            "type": "string",
+            "description": "YYYY-MM-DD. The date the decision took effect, which is usually not the date the acte was deposited."
+          },
+          "payload": {
+            "type": "object",
+            "description": "Fields per code, see event_codes.json. Extra fields are allowed."
+          },
+          "source": {
+            "type": "object",
+            "required": ["inpi_id", "page", "bbox"],
+            "additionalProperties": true,
+            "properties": {
+              "inpi_id": {
+                "type": "string",
+                "description": "The 24-character document id from the filename of the acte or bilan you read it in."
+              },
+              "page": { "type": "integer", "minimum": 1, "description": "1-indexed." },
+              "bbox": {
+                "type": "array",
+                "items": { "type": "number", "minimum": 0, "maximum": 1 },
+                "minItems": 4,
+                "maxItems": 4,
+                "description": "[x0, y0, x1, y1] normalized 0-1, origin top-left."
+              },
+              "snippet": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "capital_timeline": {
+      "type": "array",
+      "description": "The state of the cap table after each event, in chronological order. This is the artefact the challenge is really about.",
+      "items": {
+        "type": "object",
+        "required": ["as_of", "capital_eur", "holders"],
+        "additionalProperties": true,
+        "properties": {
+          "as_of": { "type": "string", "description": "YYYY-MM-DD." },
+          "capital_eur": { "type": ["number", "null"] },
+          "shares_total": { "type": ["number", "null"] },
+          "nominal_eur": { "type": ["number", "null"] },
+          "holders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "additionalProperties": true,
+              "properties": {
+                "name": { "type": "string" },
+                "siren": {
+                  "type": ["string", "null"],
+                  "description": "Only when the document actually gives one, or you resolved it and can say how."
+                },
+                "kind": { "type": "string", "enum": ["PERSON", "COMPANY", "UNKNOWN"] },
+                "shares": { "type": ["number", "null"] },
+                "pct": { "type": ["number", "null"] }
+              }
+            }
+          },
+          "caused_by": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "event_id values that produced this state."
+          }
+        }
+      }
+    },
+
+    "group": {
+      "type": "object",
+      "description": "OPTIONAL BONUS. The corporate relations you can prove from the documents in this folder.",
+      "additionalProperties": true,
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": true,
+            "properties": {
+              "name": { "type": "string" },
+              "siren": { "type": ["string", "null"] },
+              "resolved": {
+                "type": "boolean",
+                "description": "false is a perfectly good answer when a name cannot be tied to a SIREN."
+              }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to", "relation"],
+            "additionalProperties": true,
+            "properties": {
+              "from": { "type": "string" },
+              "to": { "type": "string" },
+              "relation": {
+                "type": "string",
+                "description": "e.g. shareholder_of, subsidiary_of, contract_counterparty, unrelated"
+              },
+              "pct": { "type": ["number", "null"] },
+              "as_of": { "type": ["string", "null"] },
+              "source": {
+                "type": "object",
+                "description": "Same shape as events[].source. An edge without evidence is worth less than no edge."
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "notes": {
+      "type": "string",
+      "description": "Anything you want us to know: contradictions you found, things you could not resolve, what you would do next."
+    }
+  }
+}

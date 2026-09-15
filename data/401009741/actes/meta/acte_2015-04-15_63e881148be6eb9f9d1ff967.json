@@ -1,0 +1,28 @@
+{
+  "updatedAt": "2023-10-18T20:16:36+02:00",
+  "siren": "401009741",
+  "denomination": "CREAMANDE",
+  "dateDepot": "2015-04-15",
+  "numChrono": "2993",
+  "nomDocument": "37175221000000_C0022A1001L406959D20150504H175516TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e881148be6eb9f9d1ff967",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Changement de forme juridique "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Changement relatif à l'objet social "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Changement relatif à l'activité "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

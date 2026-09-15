@@ -1,0 +1,25 @@
+{
+  "updatedAt": "2023-10-18T21:25:51+02:00",
+  "siren": "328024377",
+  "denomination": "BERNACHON SA",
+  "dateDepot": "2003-12-15",
+  "numChrono": "23862",
+  "nomDocument": "DogT187bUjOC_RACT0400043778",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8ebb854febda17c19ee6f",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal du conseil d'administration",
+      "decision": " Mise en harmonie des statuts Modification relative aux dirigeants d'une société"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale mixte",
+      "decision": " Mise en harmonie des statuts Modification relative aux dirigeants d'une société"
+    },
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Mise en harmonie des statuts Modification relative aux dirigeants d'une société"
+    }
+  ]
+}

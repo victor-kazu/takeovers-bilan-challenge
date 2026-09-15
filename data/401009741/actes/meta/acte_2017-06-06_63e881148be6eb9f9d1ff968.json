@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2023-10-18T20:16:36+02:00",
+  "siren": "401009741",
+  "denomination": "CREAMANDE",
+  "dateDepot": "2017-06-06",
+  "numChrono": "4823",
+  "nomDocument": "R5A1Upo7B19H_C0022A1001L236943D20170622H165038TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e881148be6eb9f9d1ff968",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée"
+    },
+    {
+      "typeActe": "Décision(s) du président",
+      "decision": "Réduction du capital social "
+    }
+  ]
+}

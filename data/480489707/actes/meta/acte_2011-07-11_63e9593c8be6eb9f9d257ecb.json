@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-18T22:32:10+02:00",
+  "siren": "480489707",
+  "denomination": "ARCHEAN TECHNOLOGIES",
+  "dateDepot": "2011-07-11",
+  "numChrono": "1575",
+  "nomDocument": "7p3mT055eAET_RACT2_480489707_8201_2005B00030_2011_157502",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e9593c8be6eb9f9d257ecb",
+  "typeRdd": [
+    {
+      "typeActe": "Extrait de procès-verbal d'assemblée",
+      "decision": "Changement relatif à la date de clôture de l'exercice social "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

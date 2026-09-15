@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T07:56:33+02:00",
+  "siren": "015551401",
+  "denomination": "MENUISERIE A. MUGNIER",
+  "dateDepot": "2018-11-23",
+  "numChrono": "19427",
+  "nomDocument": "rB75CWj0UwxQ_C0022A1001L318833D20181129H014405TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e34290d0f29b5aaa0ced2c",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Changement(s) de gérant(s) "
+    }
+  ]
+}

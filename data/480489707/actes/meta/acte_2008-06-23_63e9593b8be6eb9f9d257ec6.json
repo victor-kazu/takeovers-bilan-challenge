@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T22:32:10+02:00",
+  "siren": "480489707",
+  "denomination": "ARCHEAN TECHNOLOGIES",
+  "dateDepot": "2008-06-23",
+  "numChrono": "1480",
+  "nomDocument": "j1RctsykNGH2_RACT0800150147",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e9593b8be6eb9f9d257ec6",
+  "typeRdd": [
+    {
+      "typeActe": "Rapport du commissaire aux comptes",
+      "decision": "RAPPORT DU COMMISSAIRE AUX AVANTAGES PARTICULIERS "
+    }
+  ]
+}

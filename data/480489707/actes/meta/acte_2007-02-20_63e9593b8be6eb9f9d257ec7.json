@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-18T22:32:10+02:00",
+  "siren": "480489707",
+  "denomination": "ARCHEAN TECHNOLOGIES",
+  "dateDepot": "2007-02-20",
+  "numChrono": "354",
+  "nomDocument": "619tS7ccCXqS_RACT0701143924",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e9593b8be6eb9f9d257ec7",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Augmentation du capital social "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

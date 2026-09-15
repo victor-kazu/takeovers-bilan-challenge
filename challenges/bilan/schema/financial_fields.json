@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "about": "The 12 fields to extract for the bilan challenge. A deliberately reduced subset of the schema Takeovers uses in production. Report values as filed by the company.",
+  "value_rules": {
+    "unit": "Mandatory. 'EUR' when the statement is filed in euros, 'kEUR' when filed in thousands. Some filings say which only once, in small print.",
+    "sign": "Report values as printed. Costs are positive unless the filing itself shows a negative.",
+    "missing": "If a field is genuinely absent from a document, omit it rather than reporting 0."
+  },
+  "fields": [
+    {
+      "field_key": "PL_REVENUE_FRGAAP",
+      "label_en": "Net revenue",
+      "label_fr": "Montant net du chiffre d'affaires",
+      "statement": "PL",
+      "usually_found_on": "Compte de résultat (usually liasse 2052)",
+      "notes": "Net revenue for the period. The form separates goods from services and domestic from export; the figure you want is the net total."
+    },
+    {
+      "field_key": "PL_COGS_FRGAAP",
+      "label_en": "Cost of goods sold",
+      "label_fr": "Achats marchandises + matières + variations stocks + production stockée",
+      "statement": "PL",
+      "usually_found_on": "Compte de résultat (usually liasse 2052)",
+      "notes": "Cost of goods sold. In a French liasse this is built from purchases and the change in inventory — it is not printed as a single \"COGS\" line."
+    },
+    {
+      "field_key": "PL_PERSONNEL_COSTS_FRGAAP",
+      "label_en": "Personnel costs",
+      "label_fr": "Salaires + charges sociales",
+      "statement": "PL",
+      "usually_found_on": "Compte de résultat (usually liasse 2052)",
+      "notes": "Total personnel cost: wages plus social charges."
+    },
+    {
+      "field_key": "PL_EXT_SERVICES_COSTS_FRGAAP",
+      "label_en": "External services & subcontracting",
+      "label_fr": "Autres achats et charges externes (FW)",
+      "statement": "PL",
+      "usually_found_on": "Compte de résultat (usually liasse 2052)",
+      "notes": "External services and subcontracting (autres achats et charges externes)."
+    },
+    {
+      "field_key": "PL_DEPRECIATION_AMORTIZATION_FRGAAP",
+      "label_en": "Depreciation & amortization",
+      "label_fr": "Dotations d'exploitation (amort. + prov.)",
+      "statement": "PL",
+      "usually_found_on": "Compte de résultat (usually liasse 2052)",
+      "notes": "Depreciation and amortisation charged for the period."
+    },
+    {
+      "field_key": "PL_FINANCIAL_RESULTS_FRGAAP",
+      "label_en": "Net financial result",
+      "label_fr": "Résultat financier (V - VI)",
+      "statement": "PL",
+      "usually_found_on": "Compte de résultat (usually liasse 2052)",
+      "notes": "Net financial result: financial income minus financial expense. Often negative."
+    },
+    {
+      "field_key": "PL_INCOME_TAX_FRGAAP",
+      "label_en": "Corporate income tax",
+      "label_fr": "Impôts sur les bénéfices",
+      "statement": "PL",
+      "usually_found_on": "Compte de résultat, suite (usually liasse 2053)",
+      "notes": "Corporate income tax for the period."
+    },
+    {
+      "field_key": "BS_TOTAL_ASSETS_FRGAAP",
+      "label_en": "Total assets",
+      "label_fr": "Total général actif",
+      "statement": "BS",
+      "usually_found_on": "Bilan — Actif (usually liasse 2050)",
+      "notes": "Total assets. Should reconcile with total liabilities plus equity — a useful self-check."
+    },
+    {
+      "field_key": "BS_TOTAL_EQUITY_FRGAAP",
+      "label_en": "Total equity",
+      "label_fr": "Total des capitaux propres",
+      "statement": "BS",
+      "usually_found_on": "Bilan — Passif (usually liasse 2051)",
+      "notes": "Total shareholders equity (capitaux propres)."
+    },
+    {
+      "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
+      "label_en": "Share capital & reserves",
+      "label_fr": "Capital social + primes + réserves",
+      "statement": "BS",
+      "usually_found_on": "Bilan — Passif (usually liasse 2051)",
+      "notes": "Called-up share capital (capital social)."
+    },
+    {
+      "field_key": "BS_CASH_CURRENT_ASSET_FRGAAP",
+      "label_en": "Cash and cash equivalents",
+      "label_fr": "Disponibilités + VMP",
+      "statement": "BS",
+      "usually_found_on": "Bilan — Actif (usually liasse 2050)",
+      "notes": "Cash and cash equivalents (disponibilités)."
+    },
+    {
+      "field_key": "META_AVG_WORKFORCE_FRGAAP",
+      "label_en": "Average number of employees",
+      "label_fr": "Effectif moyen du personnel",
+      "statement": "META",
+      "usually_found_on": "Affectation du résultat / renseignements divers (usually liasse 2058-C)",
+      "notes": "Average number of employees over the period. Not a monetary value — do not attach a currency to it."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-18T21:25:51+02:00",
+  "siren": "328024377",
+  "denomination": "BERNACHON SA",
+  "dateDepot": "1995-09-08",
+  "numChrono": "12675",
+  "nomDocument": "UpDbMhIOjHCd_RACT9500484386",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8ebb854febda17c19ee6c",
+  "typeRdd": [
+    {
+      "typeActe": "Acte",
+      "decision": " Décision sur la modification du capital social"
+    },
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Décision sur la modification du capital social"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-17T22:56:07+02:00",
+  "siren": "846650141",
+  "denomination": "ETABLISSEMENTS E PECOU",
+  "dateDepot": "1997-02-14",
+  "numChrono": "236",
+  "nomDocument": "Ep3EQPuOOQHV_RACT9700138833",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfc4a58640ab3541190770",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal du conseil d'administration",
+      "decision": "Changement de président directeur général "
+    },
+    {
+      "typeActe": "Procès-verbal du conseil d'administration",
+      "decision": "Modifications relatives au conseil d'administration "
+    }
+  ]
+}

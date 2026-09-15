@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T20:16:36+02:00",
+  "siren": "401009741",
+  "denomination": "CREAMANDE",
+  "dateDepot": "2015-01-23",
+  "numChrono": "507",
+  "nomDocument": "77498386000000_C0022A1001L475472D20150210H173547TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e881138be6eb9f9d1ff964",
+  "typeRdd": [
+    {
+      "typeActe": "Rapport du commissaire à la transformation",
+      "decision": "SARL EN SAS "
+    }
+  ]
+}

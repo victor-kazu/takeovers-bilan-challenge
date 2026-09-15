@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-18T07:26:53+02:00",
+  "siren": "560801045",
+  "denomination": "ETS DEDIEU",
+  "dateDepot": "2019-07-24",
+  "numChrono": "A2019/014244",
+  "nomDocument": "EM8gIpyLmz8Q_C0022A1001L467528D20190731H043945TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e31b64038f2816a117d0e7",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Transfert du siège social de la personne morale"
+    },
+    {
+      "typeActe": "Décision de gérance",
+      "decision": " Transfert du siège social de la personne morale"
+    }
+  ]
+}

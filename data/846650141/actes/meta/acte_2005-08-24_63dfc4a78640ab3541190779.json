@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-17T22:56:08+02:00",
+  "siren": "846650141",
+  "denomination": "ETABLISSEMENTS E PECOU",
+  "dateDepot": "2005-08-24",
+  "numChrono": "1558",
+  "nomDocument": "0r0H9BWzvyIq_RACT0500214211",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfc4a78640ab3541190779",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Modifications relatives au conseil d'administration "
+    }
+  ]
+}

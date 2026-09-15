@@ -1,0 +1,20 @@
+{
+ "updatedAt": "2023-10-17T15:32:15+02:00",
+ "siren": "352890354",
+ "denomination": "AIR SYSTEM SERVICE",
+ "dateDepot": "1997-09-01",
+ "numChrono": "1295",
+ "nomDocument": "kJE6AFZSVmlI_RACT9700529406",
+ "confidentiality": "Public",
+ "deleted": false,
+ "id": "63dceb8a8640ab3541078b63",
+ "typeRdd": [
+  {
+   "typeActe": "Procès-verbal d'assemblée",
+   "decision": "Transfert du siège RUE CARTATOUCHE82170 BESSENS "
+  },
+  {
+   "typeActe": "Statuts mis à jour"
+  }
+ ]
+}

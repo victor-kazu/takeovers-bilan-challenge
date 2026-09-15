@@ -1,0 +1,39 @@
+{
+  "updatedAt": "2023-10-18T05:07:31+02:00",
+  "siren": "445070311",
+  "denomination": "JACQUES BOCKEL SARL",
+  "dateDepot": "2017-12-20",
+  "numChrono": "3006",
+  "nomDocument": "QOg7FVMSV2yZ_C0022A1001L484289D20200304H050217TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e2481b916269756a095425",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Modification du nom commercial "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Nomination de directeur général "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Nomination de président "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": ". "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "SARL en SAS "
+    },
+    {
+      "typeActe": "Rapport de la gérance"
+    }
+  ]
+}

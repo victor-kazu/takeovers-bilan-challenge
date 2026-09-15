@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-18T21:01:38+02:00",
+  "siren": "027080076",
+  "denomination": "SOCIETE ANONYME D'ECONOMIE MIXTE IMMOBILIERE ET ECONOMIQUE DE LA VILLE DE NIORT",
+  "dateDepot": "2015-11-06",
+  "numChrono": "3150",
+  "nomDocument": "7601810000000_C0022A1001L134751D20151204H122430TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8c2577e898005f51aaa25",
+  "typeRdd": [
+    {
+      "typeActe": "Lettre",
+      "decision": "Changement de représentant permanent "
+    },
+    {
+      "typeActe": "Procès-verbal du conseil d'administration",
+      "decision": "Changement de représentant permanent "
+    }
+  ]
+}

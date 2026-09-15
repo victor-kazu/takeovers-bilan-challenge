@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-18T21:01:40+02:00",
+  "siren": "027080076",
+  "denomination": "SOCIETE ANONYME D'ECONOMIE MIXTE IMMOBILIERE ET ECONOMIQUE DE LA VILLE DE NIORT",
+  "dateDepot": "2012-06-18",
+  "numChrono": "1771",
+  "nomDocument": "WdwiL6S2w9gz_RACT2_027080076_7901_1970B00007_2012_17712",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8c25c7e898005f51aaa52",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal du conseil de surveillance",
+      "decision": "Modification(s) relative(s) au conseil de surveillance "
+    },
+    {
+      "typeActe": "Divers",
+      "decision": "Modification(s) relative(s) au représentant légal "
+    }
+  ]
+}

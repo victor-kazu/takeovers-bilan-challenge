@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-18T04:18:33+02:00",
+  "siren": "820561470",
+  "denomination": "SARL PAUTET",
+  "dateDepot": "2016-06-01",
+  "numChrono": "3713",
+  "nomDocument": "yNwn3cCqcIM3_C0022A1001L420528D20160617H181738TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e1f90fd0f29b5aaa069b71",
+  "typeRdd": [
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "Constitution "
+    },
+    {
+      "typeActe": "Acte de nomination d'organe(s) de gestion, direction, administration, surveillance ou contrôle",
+      "decision": "Nomination(s) de gérant(s) "
+    }
+  ]
+}

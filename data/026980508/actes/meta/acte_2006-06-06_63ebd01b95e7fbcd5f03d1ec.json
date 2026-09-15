@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-23T19:33:21+02:00",
+  "siren": "026980508",
+  "denomination": "LES IMPRESSIONS DUMAS",
+  "dateDepot": "2006-06-06",
+  "numChrono": "907",
+  "nomDocument": "vtQUZkzSwcJX_RACT0600780925",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd01b95e7fbcd5f03d1ec",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale",
+      "decision": "Modification(s) relative(s) au(x) commissaire(s) aux comptes "
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2023-10-18T05:07:31+02:00",
+  "siren": "445070311",
+  "denomination": "JACQUES BOCKEL SARL",
+  "dateDepot": "2003-02-19",
+  "numChrono": "237",
+  "nomDocument": "WusgWUVGVleS_RACT0300008776",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e24819916269756a09541e",
+  "typeRdd": [
+    {
+      "typeActe": "Acte de nomination d'organe(s) de gestion, direction, administration, surveillance ou contrôle"
+    },
+    {
+      "typeActe": "Attestation de dépôt des fonds et liste des souscripteurs"
+    },
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "Constitution "
+    }
+  ]
+}

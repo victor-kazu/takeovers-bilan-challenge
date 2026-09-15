@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-18T04:18:33+02:00",
+  "siren": "820561470",
+  "denomination": "SARL PAUTET",
+  "dateDepot": "2022-02-04",
+  "numChrono": "1185",
+  "nomDocument": "SwEIBNZO5IcB_C0022A1001L893741D20220209H202858TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e1f90fd0f29b5aaa069b72",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Augmentation du capital social "
+    }
+  ]
+}

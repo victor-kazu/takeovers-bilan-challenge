@@ -1,0 +1,24 @@
+{
+  "updatedAt": "2023-10-23T19:33:21+02:00",
+  "siren": "026980508",
+  "denomination": "LES IMPRESSIONS DUMAS",
+  "dateDepot": "1995-03-10",
+  "numChrono": "950292",
+  "nomDocument": "2HkvllZTxAEt_RACT9500331301",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd01c95e7fbcd5f03d1ed",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal du conseil d'administration"
+    },
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": "Modifications relatives au conseil d'administration "
+    },
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": "Changement de forme juridique "
+    }
+  ]
+}

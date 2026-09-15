@@ -1,0 +1,14 @@
+{
+  "updatedAt": "2024-12-12T10:03:18+01:00",
+  "siren": "560801045",
+  "denomination": "ETS DEDIEU",
+  "dateDepot": "2024-11-26",
+  "numChrono": "42491",
+  "nomDocument": "CA_560801045_3102_1956B00104_2023_C",
+  "confidentiality": "Partiellement confidentiel",
+  "deleted": false,
+  "id": "675aa6d6d67d8d66500d1621",
+  "dateCloture": "2023-12-31",
+  "typeBilan": "C",
+  "version": "2.0"
+}

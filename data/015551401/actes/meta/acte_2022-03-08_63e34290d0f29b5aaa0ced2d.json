@@ -1,0 +1,24 @@
+{
+  "updatedAt": "2023-10-18T07:56:33+02:00",
+  "siren": "015551401",
+  "denomination": "MENUISERIE A. MUGNIER",
+  "dateDepot": "2022-03-08",
+  "numChrono": "2164",
+  "nomDocument": "ALvA4FSRnW9F_C0022A1001L251594D20220314H190454TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e34290d0f29b5aaa0ced2d",
+  "typeRdd": [
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "entre M Cédric MUGNIER et M Cyril MUGNIER "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale ordinaire",
+      "decision": "Démission de co-gérant "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

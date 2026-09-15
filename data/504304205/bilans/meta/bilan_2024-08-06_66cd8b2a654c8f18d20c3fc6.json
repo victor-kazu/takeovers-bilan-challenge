@@ -1,0 +1,14 @@
+{
+  "updatedAt": "2024-08-27T10:15:38+02:00",
+  "siren": "504304205",
+  "denomination": "SO.ME.PROD",
+  "dateDepot": "2024-08-06",
+  "numChrono": "25189",
+  "nomDocument": "CA_504304205_1303_2008B02193_2022_C",
+  "confidentiality": "Partiellement confidentiel",
+  "deleted": false,
+  "id": "66cd8b2a654c8f18d20c3fc6",
+  "dateCloture": "2022-12-31",
+  "typeBilan": "C",
+  "version": "2.0"
+}

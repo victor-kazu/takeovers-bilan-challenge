@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T21:25:51+02:00",
+  "siren": "328024377",
+  "denomination": "BERNACHON SA",
+  "dateDepot": "2002-01-10",
+  "numChrono": "806",
+  "nomDocument": "NBXpoChxKadX_RACT0200101203",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8ebb854febda17c19ee6d",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale ordinaire",
+      "decision": " Modification des commissaires aux comptes"
+    }
+  ]
+}

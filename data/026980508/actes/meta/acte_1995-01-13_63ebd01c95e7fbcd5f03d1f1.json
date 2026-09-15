@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-23T19:33:21+02:00",
+  "siren": "026980508",
+  "denomination": "LES IMPRESSIONS DUMAS",
+  "dateDepot": "1995-01-13",
+  "numChrono": "63",
+  "nomDocument": "8HSG5oV1y8k4_RACT9500132044",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd01c95e7fbcd5f03d1f1",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal du conseil d'administration",
+      "decision": "Transfert du siège social "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

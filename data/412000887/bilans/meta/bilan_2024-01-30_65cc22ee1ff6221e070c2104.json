@@ -1,0 +1,14 @@
+{
+  "updatedAt": "2024-02-14T03:18:22+01:00",
+  "siren": "412000887",
+  "denomination": "CEROV FORMATION",
+  "dateDepot": "2024-01-30",
+  "numChrono": "1234",
+  "nomDocument": "CA_412000887_8501_1997B00311_2023_C",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "65cc22ee1ff6221e070c2104",
+  "dateCloture": "2023-03-31",
+  "typeBilan": "C",
+  "version": "2.0"
+}

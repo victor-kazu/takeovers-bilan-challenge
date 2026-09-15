@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bilan challenge — results.json",
+  "description": "The file we read. Put it at the root of your repository, named exactly results.json.",
+  "type": "object",
+  "required": ["documents", "run"],
+  "additionalProperties": true,
+  "properties": {
+    "documents": {
+      "type": "array",
+      "description": "One entry per PDF you processed. You do not have to process all 15.",
+      "items": {
+        "type": "object",
+        "required": ["pdf", "siren", "fields"],
+        "additionalProperties": true,
+        "properties": {
+          "pdf": {
+            "type": "string",
+            "description": "Path of the PDF as shipped, e.g. challenges/bilan/data/328024377/pdfs/bilan_2025-02-21_<doc_id>.pdf"
+          },
+          "siren": { "type": "string", "pattern": "^[0-9]{9}$" },
+          "fiscal_year_end": {
+            "type": ["string", "null"],
+            "description": "Date de clôture of the exercise this filing reports, YYYY-MM-DD. Not the deposit date in the filename."
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["field_key", "value", "unit", "page", "bbox"],
+              "additionalProperties": true,
+              "properties": {
+                "field_key": {
+                  "type": "string",
+                  "description": "One of the 12 keys in financial_fields.json."
+                },
+                "value": { "type": ["number", "null"] },
+                "unit": {
+                  "type": "string",
+                  "enum": ["EUR", "kEUR", "count"],
+                  "description": "'count' only for META_AVG_WORKFORCE_FRGAAP."
+                },
+                "page": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "1-indexed page of the PDF."
+                },
+                "bbox": {
+                  "type": "array",
+                  "items": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "description": "[x0, y0, x1, y1] normalized to 0-1 against page width and height. Origin top-left."
+                },
+                "snippet": {
+                  "type": "string",
+                  "description": "Optional. The text you read the value from."
+                },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "description": "Your own measurement of what the pipeline cost. We read these numbers against the reasoning in your README.",
+      "required": ["cost_eur_per_page", "seconds_per_page", "notes"],
+      "additionalProperties": true,
+      "properties": {
+        "cost_eur_per_page": {
+          "type": "number",
+          "description": "Euros per page. Say in notes how you derived it — token counts and a published price is a fine derivation."
+        },
+        "seconds_per_page": { "type": "number" },
+        "pages_processed": { "type": "integer" },
+        "model": {
+          "type": ["string", "null"],
+          "description": "Whatever did the work: a model name, 'provided OCR + rules', 'regex only'. All are legitimate."
+        },
+        "notes": {
+          "type": "string",
+          "description": "How the numbers were obtained, and what you would change with more time."
+        }
+      }
+    }
+  }
+}

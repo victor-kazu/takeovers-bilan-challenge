@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-26T01:10:36+02:00",
+  "siren": "360500011",
+  "denomination": "LESUEUR & CIE",
+  "dateDepot": "2021-10-15",
+  "numChrono": "130389",
+  "nomDocument": "dXEGYkBOHevz_C0022A1001L569835D20211020H180807TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63f103613f2ad069a6132822",
+  "typeRdd": [
+    {
+      "typeActe": "Ordonnance",
+      "decision": "Prorogation du délai de réunion de l'A.G. chargée d'approuver les comptes"
+    }
+  ]
+}

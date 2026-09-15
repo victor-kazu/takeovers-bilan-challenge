@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T21:25:51+02:00",
+  "siren": "328024377",
+  "denomination": "BERNACHON SA",
+  "dateDepot": "2000-02-03",
+  "numChrono": "2265",
+  "nomDocument": "iE55I0H3hVQW_RACT0000670881",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e8ebb854febda17c19ee6b",
+  "typeRdd": [
+    {
+      "typeActe": "Acte",
+      "decision": " Modification des dirigeants, organes de contrôle"
+    }
+  ]
+}

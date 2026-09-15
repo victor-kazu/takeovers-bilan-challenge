@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-23T19:34:04+02:00",
+  "siren": "035550318",
+  "denomination": "ORTELLI ET CIE",
+  "dateDepot": "2011-01-18",
+  "numChrono": "75",
+  "nomDocument": "KhuEOaOHDbq8_RACT2_035550318_3902_1955B80031_2011_751",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd08bede2a73e4f0a814f",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale",
+      "decision": " Modification des commissaires aux comptes"
+    }
+  ]
+}

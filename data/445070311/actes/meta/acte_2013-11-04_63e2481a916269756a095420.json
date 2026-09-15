@@ -1,0 +1,32 @@
+{
+  "updatedAt": "2023-10-18T05:07:31+02:00",
+  "siren": "445070311",
+  "denomination": "CHOCOLATERIE JACQUES BOCKEL",
+  "dateDepot": "2013-11-04",
+  "numChrono": "2049",
+  "nomDocument": "zc5owdpVh8fl_C0023A1001M000488D20200805H184622TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e2481a916269756a095420",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Augmentation du capital social "
+    },
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "BOCKEL JACQUES / BOCKEL JEREMY ET DOMENEGHETTY MATHIEU "
+    },
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "JACQUES BOCKEL / SCHOTT VERONIQUE "
+    },
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "JACQUES BOCKEL / DOMENEGHETTY MATHIEU "
+    }
+  ]
+}

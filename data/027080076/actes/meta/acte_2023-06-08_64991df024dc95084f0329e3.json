@@ -1,0 +1,28 @@
+{
+  "updatedAt": "2023-10-27T20:44:13+02:00",
+  "siren": "027080076",
+  "denomination": "SOCIETE ANONYME D'ECONOMIE MIXTE IMMOBILIERE ET ECONOMIQUE DE LA VILLE DE NIORT",
+  "dateDepot": "2023-06-08",
+  "numChrono": "2334",
+  "nomDocument": "MaHUVRGOqwG7_C0022A1001L280607D20230613H190611TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "64991df024dc95084f0329e3",
+  "typeRdd": [
+    {
+      "typeActe": "Extrait de procès-verbal d'assemblée générale mixte",
+      "decision": "Changement relatif à la date de clôture de l'exercice social "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Extrait de procès-verbal d'assemblée générale mixte",
+      "decision": "Modification(s) statutaire(s) "
+    },
+    {
+      "typeActe": "Extrait de procès-verbal d'assemblée générale mixte",
+      "decision": "Fin de mission de commissaire(s) aux comptes "
+    }
+  ]
+}

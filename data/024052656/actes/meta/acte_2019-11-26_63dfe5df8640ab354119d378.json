@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-17T23:10:26+02:00",
+  "siren": "024052656",
+  "denomination": "MEUBLE 110",
+  "dateDepot": "2019-11-26",
+  "numChrono": "A2019/000644",
+  "nomDocument": "uBIDoYSqrDv8_C0022A1001L581810D20200207H200859TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfe5df8640ab354119d378",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Modification de la forme juridique ou du statut particulier Modification de la dénomination de la personne morale Transfert siège social et établissement principal Modification relative aux dirigeants d'une société Modification des statuts"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": " Modification de la forme juridique ou du statut particulier Modification de la dénomination de la personne morale Transfert siège social et établissement principal Modification relative aux dirigeants d'une société Modification des statuts"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "updatedAt": "2023-10-18T05:07:31+02:00",
+  "siren": "445070311",
+  "denomination": "JACQUES BOCKEL SARL",
+  "dateDepot": "2013-11-04",
+  "numChrono": "2049",
+  "nomDocument": "nLbaqUx6RJBj_C0022A1001L344389D20200226H043314TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e2481b916269756a095426",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale extraordinaire",
+      "decision": "Augmentation du capital social "
+    },
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "BOCKEL JACQUES / BOCKEL JEREMY ET DOMENEGHETTY MATHIEU "
+    },
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "JACQUES BOCKEL / SCHOTT VERONIQUE "
+    },
+    {
+      "typeActe": "Acte sous seing privé",
+      "decision": "JACQUES BOCKEL / DOMENEGHETTY MATHIEU "
+    }
+  ]
+}

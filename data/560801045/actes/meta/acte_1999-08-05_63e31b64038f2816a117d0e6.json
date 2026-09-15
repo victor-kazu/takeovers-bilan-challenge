@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T07:26:53+02:00",
+  "siren": "560801045",
+  "denomination": "ETABLISSEMENTS DEDIEU",
+  "dateDepot": "1999-08-05",
+  "numChrono": "6403",
+  "nomDocument": "580EypMZNPMv_RACT9900555672",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e31b64038f2816a117d0e6",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": " Changement de gérant"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+ "updatedAt": "2023-10-17T15:32:15+02:00",
+ "siren": "352890354",
+ "denomination": "AIR SYSTEM SERVICE",
+ "dateDepot": "2021-09-10",
+ "numChrono": "2967",
+ "nomDocument": "h45Orquj19xj_C0022A1001L134106D20210915H173443TPIJTES003PDBOR",
+ "confidentiality": "Public",
+ "deleted": false,
+ "id": "63dceb8a8640ab3541078b64",
+ "typeRdd": [
+  {
+   "typeActe": "Statuts mis à jour"
+  },
+  {
+   "typeActe": "Procès-verbal d'assemblée générale mixte",
+   "decision": "Changement de forme juridique "
+  }
+ ]
+}

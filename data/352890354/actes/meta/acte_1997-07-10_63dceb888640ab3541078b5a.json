@@ -1,0 +1,29 @@
+{
+ "updatedAt": "2023-10-17T15:32:15+02:00",
+ "siren": "352890354",
+ "denomination": "AIR SYSTEM SERVICE",
+ "dateDepot": "1997-07-10",
+ "numChrono": "1016",
+ "nomDocument": "WN94nd1eof42_RACT9700432531",
+ "confidentiality": "Public",
+ "deleted": false,
+ "id": "63dceb888640ab3541078b5a",
+ "typeRdd": [
+  {
+   "typeActe": "Acte sous seing privé",
+   "decision": " Cession de parts MME MOUCHET JACQUELINE CEDE A MR DUMAS SERGE 20 PARTS SOCIALES NUMEROTEES DE 103 A 122"
+  },
+  {
+   "typeActe": "Divers",
+   "decision": "ATTESTATION DE DEPOT DE CESSION DE PARTS SOCIALES  Cession de parts MME MOUCHET JACQUELINE CEDE A MR DUMAS SERGE 20 PARTS SOCIALES NUMEROTEES DE 103 A 122"
+  },
+  {
+   "typeActe": "Procès-verbal d'assemblée",
+   "decision": " Cession de parts MME MOUCHET JACQUELINE CEDE A MR DUMAS SERGE 20 PARTS SOCIALES NUMEROTEES DE 103 A 122"
+  },
+  {
+   "typeActe": "Statuts mis à jour",
+   "decision": " Cession de parts MME MOUCHET JACQUELINE CEDE A MR DUMAS SERGE 20 PARTS SOCIALES NUMEROTEES DE 103 A 122"
+  }
+ ]
+}

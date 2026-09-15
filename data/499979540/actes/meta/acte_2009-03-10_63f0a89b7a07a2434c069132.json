@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2023-10-25T19:41:41+02:00",
+  "siren": "499979540",
+  "denomination": "ADEAN",
+  "dateDepot": "2009-03-10",
+  "numChrono": "550",
+  "nomDocument": "SLAuAU1QiHMK_RACT0900082034",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63f0a89b7a07a2434c069132",
+  "typeRdd": [
+    {
+      "typeActe": "Décision(s) du président",
+      "decision": "Transfert du siège 721 avenue Beausoleil 82000 Montauban "
+    },
+    {
+      "typeActe": "Liste des sièges sociaux antérieurs"
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

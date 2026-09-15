@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-17T22:56:07+02:00",
+  "siren": "846650141",
+  "denomination": "ETABLISSEMENTS E.PECOU",
+  "dateDepot": "2015-03-02",
+  "numChrono": "434",
+  "nomDocument": "37890420000000_C0022A1001L117669D20150506H173307TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfc4a38640ab3541190762",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale ordinaire",
+      "decision": "Modifications relatives au conseil d'administration "
+    }
+  ]
+}

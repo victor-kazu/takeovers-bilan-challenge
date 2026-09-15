@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-23T19:33:21+02:00",
+  "siren": "026980508",
+  "denomination": "LES IMPRESSIONS DUMAS",
+  "dateDepot": "2000-11-24",
+  "numChrono": "1538",
+  "nomDocument": "3hJgXUnHecuS_RACT0100507445",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd01d95e7fbcd5f03d1f4",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal du conseil de surveillance",
+      "decision": "Nomination de président du conseil de surveillance "
+    },
+    {
+      "typeActe": "Procès-verbal du conseil de surveillance",
+      "decision": "Nomination de vice-président du conseil de surveillance "
+    }
+  ]
+}

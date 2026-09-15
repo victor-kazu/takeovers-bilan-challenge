@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2023-10-17T22:56:08+02:00",
+  "siren": "846650141",
+  "denomination": "ETABLISSEMENTS E.PECOU",
+  "dateDepot": "2010-08-18",
+  "numChrono": "1832",
+  "nomDocument": "sJVDLC63YK4r_RACT2_846650141_8201_1966B00014_2010_183201",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfc4a68640ab3541190775",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Changement relatif à la date de clôture de l'exercice social "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

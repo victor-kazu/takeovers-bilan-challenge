@@ -1,0 +1,27 @@
+{
+  "updatedAt": "2023-10-23T19:33:21+02:00",
+  "siren": "026980508",
+  "denomination": "LES IMPRESSIONS DUMAS",
+  "dateDepot": "2007-07-09",
+  "numChrono": "1130",
+  "nomDocument": "twNn9QeCQIkn_RACT0700275273",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63ebd01c95e7fbcd5f03d1f0",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée générale",
+      "decision": "Changement de forme juridique "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée générale",
+      "decision": "Nomination de président "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    },
+    {
+      "typeActe": "Rapport du commissaire aux apports"
+    }
+  ]
+}

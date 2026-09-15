@@ -1,0 +1,16 @@
+{
+  "updatedAt": "2024-10-13T04:10:01+02:00",
+  "siren": "412000887",
+  "denomination": "CEROV FORMATION",
+  "dateDepot": "2024-06-27",
+  "numChrono": "6110",
+  "nomDocument": "je4B7LIBSpx3_C0022A1001L206498D20240702H163950TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "670b2bf9b7a7c6415007460d",
+  "typeRdd": [
+    {
+      "typeActe": "Rapport du commissaire à la transformation"
+    }
+  ]
+}

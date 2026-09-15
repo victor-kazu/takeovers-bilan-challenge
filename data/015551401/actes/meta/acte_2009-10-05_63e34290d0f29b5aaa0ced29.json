@@ -1,0 +1,24 @@
+{
+  "updatedAt": "2023-10-18T07:56:33+02:00",
+  "siren": "015551401",
+  "denomination": "MENUISERIE A. MUGNIER",
+  "dateDepot": "2009-10-05",
+  "numChrono": "5052",
+  "nomDocument": "zDKkGZrp3gQk_RACT2_015551401_2104_1955B00140_2009_505201",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e34290d0f29b5aaa0ced29",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Transfert du siège ancien siège social : 19 rue de Serrigny 21000 DIJON "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Changement de dénomination en celle de MENUISERIE A. MUGNIER "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

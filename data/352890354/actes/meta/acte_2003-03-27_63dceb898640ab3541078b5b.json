@@ -1,0 +1,28 @@
+{
+ "updatedAt": "2023-10-17T15:32:15+02:00",
+ "siren": "352890354",
+ "denomination": "AIR SYSTEM SERVICE",
+ "dateDepot": "2003-03-27",
+ "numChrono": "636",
+ "nomDocument": "Dv9q4yVwZaRH_RACT0300177772",
+ "confidentiality": "Public",
+ "deleted": false,
+ "id": "63dceb898640ab3541078b5b",
+ "typeRdd": [
+  {
+   "typeActe": "Procès-verbal d'assemblée",
+   "decision": "Changement(s) de gérant(s) "
+  },
+  {
+   "typeActe": "Statuts mis à jour"
+  },
+  {
+   "typeActe": "Acte sous seing privé",
+   "decision": "Cession de parts "
+  },
+  {
+   "typeActe": "Acte sous seing privé",
+   "decision": "MME DUMAS MARIE PIERRE CEDE A MR DUMAS SERGE 3 PARTS N° 100 A 102 "
+  }
+ ]
+}

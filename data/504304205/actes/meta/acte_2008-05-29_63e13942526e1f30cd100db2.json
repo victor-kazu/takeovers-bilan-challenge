@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-18T02:12:12+02:00",
+  "siren": "504304205",
+  "denomination": "SO ME PROD",
+  "dateDepot": "2008-05-29",
+  "numChrono": "7762",
+  "nomDocument": "iqj9trXlUtbF_RACT0800208585",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e13942526e1f30cd100db2",
+  "typeRdd": [
+    {
+      "typeActe": "Statuts constitutifs",
+      "decision": "Divers "
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "updatedAt": "2023-10-18T07:56:33+02:00",
+  "siren": "015551401",
+  "denomination": "NON RENSEIGNE",
+  "dateDepot": "2001-11-06",
+  "numChrono": "3545",
+  "nomDocument": "1a84VaeujCzr_RACT0100218779",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e34290d0f29b5aaa0ced2b",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Augmentation du capital social "
+    },
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "Conversion du capital en euros "
+    },
+    {
+      "typeActe": "Statuts mis à jour"
+    }
+  ]
+}

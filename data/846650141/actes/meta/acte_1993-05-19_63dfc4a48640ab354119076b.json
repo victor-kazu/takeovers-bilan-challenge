@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2023-10-17T22:56:07+02:00",
+  "siren": "846650141",
+  "denomination": "ETABLISSEMENTS E PECOU",
+  "dateDepot": "1993-05-19",
+  "numChrono": "722",
+  "nomDocument": "bDAKIupmZoIV_RACT9300303036",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfc4a48640ab354119076b",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée",
+      "decision": "AUTORISATION DE PRISE EN PARTICIPATION DANS LE CAPITAL DE LA STE CALIDULCEEN COURS DE CONSTITUTION AVEC SIEGE A BARCELONE (ESPAGNE) "
+    }
+  ]
+}

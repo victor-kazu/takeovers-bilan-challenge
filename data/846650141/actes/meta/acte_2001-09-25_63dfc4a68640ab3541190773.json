@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2023-10-17T22:56:08+02:00",
+  "siren": "846650141",
+  "denomination": "ETABLISSEMENTS E PECOU",
+  "dateDepot": "2001-09-25",
+  "numChrono": "1674",
+  "nomDocument": "1dAO6rfGS9dr_RACT0100743139",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63dfc4a68640ab3541190773",
+  "typeRdd": [
+    {
+      "typeActe": "Procès-verbal d'assemblée"
+    },
+    {
+      "typeActe": "Procès-verbal du conseil d'administration"
+    },
+    {
+      "typeActe": "Divers",
+      "decision": "RENOUVELLEMENT DES FONCTIONS D'ADMINISTRATEUR DE MRS PECOU ALAIN ET BERNARDET MME HOLSCHER FLORENCE ET DE DIRECTEUR GENERAL DE MRS PECOU ALAIN ET BERNARD "
+    }
+  ]
+}

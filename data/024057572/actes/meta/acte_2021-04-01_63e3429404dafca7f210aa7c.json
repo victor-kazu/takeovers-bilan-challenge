@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2023-10-18T07:56:33+02:00",
+  "siren": "024057572",
+  "denomination": "CONSEIL ET AUDIT MAYOTTE OCEAN INDIEN SARL",
+  "dateDepot": "2021-04-01",
+  "numChrono": "A2021/000261",
+  "nomDocument": "cJTmh4Msva3W_C0022A1001L462218D20210528H171107TPIJTES003PDBOR",
+  "confidentiality": "Public",
+  "deleted": false,
+  "id": "63e3429404dafca7f210aa7c",
+  "typeRdd": [
+    {
+      "typeActe": "Décision(s) de l'associé unique",
+      "decision": " Modification des statuts"
+    },
+    {
+      "typeActe": "Statuts mis à jour",
+      "decision": " Modification des statuts"
+    }
+  ]
+}
