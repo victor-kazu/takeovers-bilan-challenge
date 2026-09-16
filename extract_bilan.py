@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import glob
 import json
+import math
 import os
 import re
 import unicodedata
-import pymupdf  # Modern PyMuPDF import
+import pymupdf
 
 TARGET_DOCUMENTS = [
     {"siren": "820561470", "doc_id": "6493e4372f502414800f8164", "pdf": "data/820561470/bilans/pdf/bilan_2023-06-05_6493e4372f502414800f8164.pdf"},
@@ -25,11 +26,9 @@ TARGET_DOCUMENTS = [
     {"siren": "401009741", "doc_id": "68f0a715f28d8aaf48046416", "pdf": "data/401009741/bilans/pdf/bilan_2025-10-03_68f0a715f28d8aaf48046416.pdf"},
 ]
 
-
 def strip_accents(text: str) -> str:
     text = unicodedata.normalize("NFKD", text)
     return "".join(c for c in text if not unicodedata.combining(c)).lower()
-
 
 def load_ocr_pages(siren: str, doc_id: str) -> list[dict]:
     ocr_dir = os.path.join("data", siren, "bilans", "ocr", doc_id)
@@ -40,15 +39,10 @@ def load_ocr_pages(siren: str, doc_id: str) -> list[dict]:
             pages.append(json.load(fp))
     return pages
 
-
 def detect_document_unit(pages: list[dict]) -> str:
     keur_patterns = [
-        r"\bk€\b",
-        r"\bkeur\b",
-        r"en milliers",
-        r"milliers d['’]?euros",
-        r"montants.*en k",
-        r"exprimes? en k",
+        r"\bk€\b", r"\bkeur\b", r"en milliers", r"milliers d['’]?euros",
+        r"montants.*en k", r"exprimes? en k",
     ]
     for page in pages:
         for item in page.get("ocr", []):
@@ -57,7 +51,6 @@ def detect_document_unit(pages: list[dict]) -> str:
                 if re.search(pattern, norm):
                     return "kEUR"
     return "EUR"
-
 
 def classify_pages(pages: list[dict]) -> dict[str, int]:
     mapping: dict[str, int] = {}
@@ -68,10 +61,9 @@ def classify_pages(pages: list[dict]) -> dict[str, int]:
             mapping["2050"] = page_idx
         if "2051" not in mapping and ("2051" in combined or ("bilan" in combined and "passif" in combined)):
             mapping["2051"] = page_idx
-        if "2052" not in mapping and ("2052" in combined or ("compte de resultat" in combined and "charges d'exploitation" in combined)):
+        if "2052" not in mapping and ("2052" in combined or ("compte de resultat" in combined and "charges" in combined)):
             mapping["2052"] = page_idx
     return mapping
-
 
 def polygon_to_norm(polygon: list[list[float]], page_w_pt: float, page_h_pt: float) -> list[float]:
     scale = 300.0 / 72.0
@@ -85,7 +77,6 @@ def polygon_to_norm(polygon: list[list[float]], page_w_pt: float, page_h_pt: flo
         round(min(1.0, max(ys) / h_px), 4),
     ]
 
-
 def clean_number(text: str) -> float | None:
     cleaned = text.replace(" ", "").replace("\u00a0", "").replace(",", ".")
     m = re.search(r"[-−]?\d+(\.\d+)?", cleaned)
@@ -96,57 +87,51 @@ def clean_number(text: str) -> float | None:
     except ValueError:
         return None
 
-
-def extract_row_value(
-    page_data: dict,
-    page_w_pt: float,
-    page_h_pt: float,
-    label_keywords: list[str],
-    col_preference: str = "net",
-) -> dict | None:
+def extract_by_box_code(page_data: dict, page_w_pt: float, page_h_pt: float, code: str) -> dict | None:
     ocr_items = page_data.get("ocr", [])
-    label_item = None
-
+    code_items = []
+    
     for item in ocr_items:
-        norm = strip_accents(item.get("text", ""))
-        if any(kw in norm for kw in label_keywords):
+        text = item.get("text", "").strip().upper()
+        if re.search(rf"\b{re.escape(code)}\b", text):
             bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
-            if bbox[0] < 0.45:
-                label_item = (item, bbox)
-                break
-
-    if not label_item:
+            code_items.append((item, bbox))
+            
+    if not code_items:
         return None
 
-    _, l_bbox = label_item
-    y_center = (l_bbox[1] + l_bbox[3]) / 2.0
+    valid_codes = [c for c in code_items if 0.2 <= c[1][1] <= 0.9]
+    if not valid_codes:
+        valid_codes = code_items
+    target_code, c_bbox = valid_codes[-1]
+    c_y = (c_bbox[1] + c_bbox[3]) / 2.0
+    c_x = c_bbox[2]
 
-    row_numbers = []
+    best_candidate = None
+    min_dist = 1.0
+
     for item in ocr_items:
         bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
-        item_y_center = (bbox[1] + bbox[3]) / 2.0
-        if abs(item_y_center - y_center) <= 0.014 and bbox[0] > 0.45:
-            num = clean_number(item.get("text", ""))
-            if num is not None:
-                row_numbers.append((item, bbox, num))
+        num = clean_number(item.get("text", ""))
+        if num is None:
+            continue
+        item_y = (bbox[1] + bbox[3]) / 2.0
+        item_x = bbox[0]
 
-    if not row_numbers:
-        return None
+        if item_x >= c_x - 0.05 and abs(item_y - c_y) <= 0.025:
+            dist = math.hypot(item_x - c_x, (item_y - c_y) * 2.0)
+            if dist < min_dist:
+                min_dist = dist
+                best_candidate = (item, bbox, num)
 
-    row_numbers.sort(key=lambda x: x[1][0])
-
-    if col_preference == "net":
-        target = row_numbers[2] if len(row_numbers) >= 3 else row_numbers[0]
-    else:
-        target = row_numbers[0]
-
-    return {
-        "value": target[2],
-        "bbox": target[1],
-        "snippet": target[0].get("text", ""),
-        "confidence": float(target[0].get("score", 0.95)),
-    }
-
+    if best_candidate:
+        return {
+            "value": best_candidate[2],
+            "bbox": best_candidate[1],
+            "snippet": best_candidate[0].get("text", ""),
+            "confidence": float(best_candidate[0].get("score", 0.95)),
+        }
+    return None
 
 def process_filing(doc_info: dict) -> dict:
     siren = doc_info["siren"]
@@ -156,21 +141,14 @@ def process_filing(doc_info: dict) -> dict:
     pages = load_ocr_pages(siren, doc_id)
     unit = detect_document_unit(pages)
     page_map = classify_pages(pages)
-
     doc_fitz = pymupdf.open(pdf_path)
     fields = []
 
-    # 1. Total Assets: Liasse 2050 (Actif)
+    # 1. Total Assets: Box code 'CL' on Liasse 2050 (Actif net)
     if "2050" in page_map:
         p_num = page_map["2050"]
         p_fitz = doc_fitz[p_num - 1]
-        res = extract_row_value(
-            pages[p_num - 1],
-            p_fitz.rect.width,
-            p_fitz.rect.height,
-            ["total general", "total ( i a vi )", "total (i a vi)"],
-            col_preference="net",
-        )
+        res = extract_by_box_code(pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height, code="CL")
         if res:
             fields.append({
                 "field_key": "BS_TOTAL_ASSETS_FRGAAP",
@@ -182,20 +160,30 @@ def process_filing(doc_info: dict) -> dict:
                 "confidence": res["confidence"],
             })
 
-    # 2. Total Equity: Liasse 2051 (Passif)
+    # 2. Total Equity: Box code 'DL' on Liasse 2051 (Passif)
     if "2051" in page_map:
         p_num = page_map["2051"]
         p_fitz = doc_fitz[p_num - 1]
-        res = extract_row_value(
-            pages[p_num - 1],
-            p_fitz.rect.width,
-            p_fitz.rect.height,
-            ["total capitaux propres", "total i"],
-            col_preference="passif",
-        )
+        res = extract_by_box_code(pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height, code="DL")
         if res:
             fields.append({
                 "field_key": "BS_TOTAL_EQUITY_FRGAAP",
+                "value": res["value"],
+                "unit": unit,
+                "page": p_num,
+                "bbox": res["bbox"],
+                "snippet": res["snippet"],
+                "confidence": res["confidence"],
+            })
+
+    # 3. Share Capital: Box code 'DA' on Liasse 2051 (Passif)
+    if "2051" in page_map:
+        p_num = page_map["2051"]
+        p_fitz = doc_fitz[p_num - 1]
+        res = extract_by_box_code(pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height, code="DA")
+        if res:
+            fields.append({
+                "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
                 "value": res["value"],
                 "unit": unit,
                 "page": p_num,
@@ -211,10 +199,11 @@ def process_filing(doc_info: dict) -> dict:
         "fields": fields,
     }
 
-
 if __name__ == "__main__":
-    for doc in TARGET_DOCUMENTS[:5]:
+    for doc in TARGET_DOCUMENTS:
         out = process_filing(doc)
-        print(f"\nSIREN {out['siren']} | Document: {os.path.basename(out['pdf'])}")
+        print(f"\nSIREN {out['siren']} | {os.path.basename(out['pdf'])}")
+        if not out["fields"]:
+            print("  (no fields matched)")
         for f in out["fields"]:
             print(f"  [{f['field_key']}] => {f['value']} {f['unit']} (Page {f['page']}, bbox: {f['bbox']})")
