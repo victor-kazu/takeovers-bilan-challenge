@@ -5,6 +5,7 @@ import json
 import math
 import os
 import re
+import time
 import unicodedata
 import pymupdf
 
@@ -83,55 +84,96 @@ def clean_number(text: str) -> float | None:
     if not m:
         return None
     try:
-        return float(m.group(0).replace("−", "-"))
+        val = float(m.group(0).replace("−", "-"))
+        # Exclude small single digits that represent table column headings like (1), (2), (3)
+        if abs(val) in [1.0, 2.0, 3.0, 4.0] and len(text.strip()) <= 3:
+            return None
+        return val
     except ValueError:
         return None
 
-def extract_by_box_code(page_data: dict, page_w_pt: float, page_h_pt: float, code: str) -> dict | None:
+def extract_field_value(
+    page_data: dict,
+    page_w_pt: float,
+    page_h_pt: float,
+    code: str,
+    label_keywords: list[str],
+    col_idx: int = 0
+) -> dict | None:
     ocr_items = page_data.get("ocr", [])
-    code_items = []
     
+    # 1. First preference: look for standard 2-letter box code
+    code_items = []
     for item in ocr_items:
         text = item.get("text", "").strip().upper()
         if re.search(rf"\b{re.escape(code)}\b", text):
             bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
             code_items.append((item, bbox))
             
-    if not code_items:
+    if code_items:
+        valid_codes = [c for c in code_items if 0.1 <= c[1][1] <= 0.95]
+        target_code, c_bbox = valid_codes[-1] if valid_codes else code_items[-1]
+        c_y = (c_bbox[1] + c_bbox[3]) / 2.0
+        c_x = c_bbox[2]
+
+        candidates = []
+        for item in ocr_items:
+            bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
+            num = clean_number(item.get("text", ""))
+            if num is None:
+                continue
+            item_y = (bbox[1] + bbox[3]) / 2.0
+            item_x = bbox[0]
+            if item_x >= c_x - 0.05 and abs(item_y - c_y) <= 0.025:
+                candidates.append((item, bbox, num, item_x))
+
+        if candidates:
+            candidates.sort(key=lambda x: x[3])
+            pick = candidates[min(col_idx, len(candidates) - 1)]
+            return {
+                "value": pick[2],
+                "bbox": pick[1],
+                "snippet": pick[0].get("text", ""),
+                "confidence": float(pick[0].get("score", 0.95)),
+            }
+
+    # 2. Fallback: Horizontal row alignment from label keyword
+    label_item = None
+    for item in ocr_items:
+        norm = strip_accents(item.get("text", ""))
+        if any(kw in norm for kw in label_keywords):
+            bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
+            if bbox[0] < 0.48:
+                label_item = (item, bbox)
+                break
+
+    if not label_item:
         return None
 
-    valid_codes = [c for c in code_items if 0.2 <= c[1][1] <= 0.9]
-    if not valid_codes:
-        valid_codes = code_items
-    target_code, c_bbox = valid_codes[-1]
-    c_y = (c_bbox[1] + c_bbox[3]) / 2.0
-    c_x = c_bbox[2]
+    _, l_bbox = label_item
+    y_center = (l_bbox[1] + l_bbox[3]) / 2.0
 
-    best_candidate = None
-    min_dist = 1.0
-
+    row_candidates = []
     for item in ocr_items:
         bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
         num = clean_number(item.get("text", ""))
         if num is None:
             continue
         item_y = (bbox[1] + bbox[3]) / 2.0
-        item_x = bbox[0]
+        if abs(item_y - y_center) <= 0.020 and bbox[0] > 0.45:
+            row_candidates.append((item, bbox, num, bbox[0]))
 
-        if item_x >= c_x - 0.05 and abs(item_y - c_y) <= 0.025:
-            dist = math.hypot(item_x - c_x, (item_y - c_y) * 2.0)
-            if dist < min_dist:
-                min_dist = dist
-                best_candidate = (item, bbox, num)
+    if not row_candidates:
+        return None
 
-    if best_candidate:
-        return {
-            "value": best_candidate[2],
-            "bbox": best_candidate[1],
-            "snippet": best_candidate[0].get("text", ""),
-            "confidence": float(best_candidate[0].get("score", 0.95)),
-        }
-    return None
+    row_candidates.sort(key=lambda x: x[3])
+    pick = row_candidates[min(col_idx, len(row_candidates) - 1)]
+    return {
+        "value": pick[2],
+        "bbox": pick[1],
+        "snippet": pick[0].get("text", ""),
+        "confidence": float(pick[0].get("score", 0.90)),
+    }
 
 def process_filing(doc_info: dict) -> dict:
     siren = doc_info["siren"]
@@ -144,11 +186,15 @@ def process_filing(doc_info: dict) -> dict:
     doc_fitz = pymupdf.open(pdf_path)
     fields = []
 
-    # 1. Total Assets: Box code 'CL' on Liasse 2050 (Actif net)
+    # 1. Total Assets: Box code 'CL' or label 'total general' on Liasse 2050 (col_idx=2: Net)
     if "2050" in page_map:
         p_num = page_map["2050"]
         p_fitz = doc_fitz[p_num - 1]
-        res = extract_by_box_code(pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height, code="CL")
+        res = extract_field_value(
+            pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height,
+            code="CL", label_keywords=["total general", "total ( i a vi )", "total (i a vi)"],
+            col_idx=2
+        )
         if res:
             fields.append({
                 "field_key": "BS_TOTAL_ASSETS_FRGAAP",
@@ -160,11 +206,15 @@ def process_filing(doc_info: dict) -> dict:
                 "confidence": res["confidence"],
             })
 
-    # 2. Total Equity: Box code 'DL' on Liasse 2051 (Passif)
+    # 2. Total Equity: Box code 'DL' or label 'total capitaux propres' on Liasse 2051
     if "2051" in page_map:
         p_num = page_map["2051"]
         p_fitz = doc_fitz[p_num - 1]
-        res = extract_by_box_code(pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height, code="DL")
+        res = extract_field_value(
+            pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height,
+            code="DL", label_keywords=["total capitaux propres", "total i"],
+            col_idx=0
+        )
         if res:
             fields.append({
                 "field_key": "BS_TOTAL_EQUITY_FRGAAP",
@@ -176,11 +226,15 @@ def process_filing(doc_info: dict) -> dict:
                 "confidence": res["confidence"],
             })
 
-    # 3. Share Capital: Box code 'DA' on Liasse 2051 (Passif)
+    # 3. Share Capital: Box code 'DA' or label 'capital social' on Liasse 2051
     if "2051" in page_map:
         p_num = page_map["2051"]
         p_fitz = doc_fitz[p_num - 1]
-        res = extract_by_box_code(pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height, code="DA")
+        res = extract_field_value(
+            pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height,
+            code="DA", label_keywords=["capital social", "capital individuel"],
+            col_idx=0
+        )
         if res:
             fields.append({
                 "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
@@ -199,11 +253,36 @@ def process_filing(doc_info: dict) -> dict:
         "fields": fields,
     }
 
-if __name__ == "__main__":
+def run_full_pipeline():
+    start_time = time.time()
+    total_pages = 0
+    all_docs_output = []
+
     for doc in TARGET_DOCUMENTS:
-        out = process_filing(doc)
-        print(f"\nSIREN {out['siren']} | {os.path.basename(out['pdf'])}")
-        if not out["fields"]:
-            print("  (no fields matched)")
-        for f in out["fields"]:
-            print(f"  [{f['field_key']}] => {f['value']} {f['unit']} (Page {f['page']}, bbox: {f['bbox']})")
+        pages = load_ocr_pages(doc["siren"], doc["doc_id"])
+        total_pages += len(pages)
+        res = process_filing(doc)
+        all_docs_output.append(res)
+        print(f"SIREN {res['siren']} | Matched {len(res['fields'])} fields in {os.path.basename(res['pdf'])}")
+
+    elapsed = time.time() - start_time
+    sec_per_page = round(elapsed / total_pages, 4) if total_pages else 0.0
+
+    output = {
+        "documents": all_docs_output,
+        "run": {
+            "cost_eur_per_page": 0.0,
+            "seconds_per_page": sec_per_page,
+            "pages_processed": total_pages,
+            "model": "provided OCR + French tax liasse code & geometric regex parser",
+            "notes": "Cost is 0 EUR because extraction relies entirely on the provided OCR and local geometric parsing. High precision prioritized on key balance sheet metrics."
+        }
+    }
+
+    with open("results.json", "w", encoding="utf-8") as f:
+        json.dump(output, f, indent=2, ensure_ascii=False)
+
+    print(f"\nWrote results.json successfully! Processed {total_pages} pages in {elapsed:.2f}s ({sec_per_page}s/page).")
+
+if __name__ == "__main__":
+    run_full_pipeline()
