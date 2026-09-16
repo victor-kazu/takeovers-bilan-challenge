@@ -2,7 +2,7 @@
 
 An automated, zero-marginal-cost financial extraction pipeline designed to parse up to 12 standardized French GAAP metrics from annual tax filings (*liasses fiscales*). The engine handles both standard (*Régime Réel Normal* / 2050 series) and simplified (*Régime Réel Simplifié* / 2033 series) filings, outputting normalized values, dynamic currency units (`EUR` vs `kEUR`), 1-indexed page locations, and normalized bounding box coordinates `[x0, y0, x1, y1]`.
 
-* **Video Walkthrough (3 min)**: `[Insert your Loom / Screen Recording link here]`
+* **Video Walkthrough (3 min)**: `https://www.loom.com/share/c17ec271253e4c1586a764aeb9e07434`
 
 ---
 
