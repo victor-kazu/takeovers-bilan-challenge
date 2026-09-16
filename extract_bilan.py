@@ -62,8 +62,12 @@ def classify_pages(pages: list[dict]) -> dict[str, int]:
             mapping["2050"] = page_idx
         if "2051" not in mapping and ("2051" in combined or ("bilan" in combined and "passif" in combined)):
             mapping["2051"] = page_idx
-        if "2052" not in mapping and ("2052" in combined or ("compte de resultat" in combined and "charges" in combined)):
+        if "2052" not in mapping and ("2052" in combined or ("compte de resultat" in combined and "charges d'exploitation" in combined)):
             mapping["2052"] = page_idx
+        if "2053" not in mapping and ("2053" in combined or ("compte de resultat" in combined and "suite" in combined)):
+            mapping["2053"] = page_idx
+        if "2058-C" not in mapping and ("2058-c" in combined or "2058 c" in combined or "renseignements divers" in combined):
+            mapping["2058-C"] = page_idx
     return mapping
 
 def polygon_to_norm(polygon: list[list[float]], page_w_pt: float, page_h_pt: float) -> list[float]:
@@ -90,7 +94,6 @@ def clean_number(text: str) -> float | None:
         return None
 
 def merge_row_number_tokens(items_on_row: list[dict], page_w_pt: float, page_h_pt: float) -> list[dict]:
-    """Merge only tightly-spaced digit fragments that belong to the same number."""
     sorted_items = sorted(
         [it for it in items_on_row if clean_number(it.get("text", "")) is not None],
         key=lambda x: polygon_to_norm(x["polygon"], page_w_pt, page_h_pt)[0]
@@ -105,12 +108,9 @@ def merge_row_number_tokens(items_on_row: list[dict], page_w_pt: float, page_h_p
     for it in sorted_items[1:]:
         prev_box = polygon_to_norm(current_cluster[-1]["polygon"], page_w_pt, page_h_pt)
         curr_box = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
-        
-        # Horizontal gap must be tiny (< 0.012 page width) and vertically aligned
         gap = curr_box[0] - prev_box[2]
         v_diff = abs(((curr_box[1] + curr_box[3]) / 2) - ((prev_box[1] + prev_box[3]) / 2))
-        
-        # Only merge if gap is very tight (within the same column cell)
+
         if 0 <= gap < 0.012 and v_diff < 0.010:
             current_cluster.append(it)
         else:
@@ -144,17 +144,44 @@ def extract_field_value(
     page_h_pt: float,
     code: str,
     label_keywords: list[str],
-    col_idx: int = 0
+    col_idx: int = 0,
+    min_y: float = 0.10,
+    max_y: float = 0.95
 ) -> dict | None:
     ocr_items = page_data.get("ocr", [])
 
-    # 1. Fallback / direct: Search by row label first if it's a major total line
+    # 1. Search by 2-letter box code
+    code_items = []
+    for item in ocr_items:
+        text = item.get("text", "").strip().upper()
+        if re.search(rf"\b{re.escape(code)}\b", text):
+            bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
+            if min_y <= bbox[1] <= max_y:
+                code_items.append((item, bbox))
+
+    if code_items:
+        target_code, c_bbox = code_items[-1]
+        c_y = (c_bbox[1] + c_bbox[3]) / 2.0
+        c_x = c_bbox[2]
+
+        row_items = [
+            it for it in ocr_items
+            if abs(((polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[1] + polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[3]) / 2.0) - c_y) <= 0.020
+            and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] >= c_x - 0.05
+        ]
+        merged = merge_row_number_tokens(row_items, page_w_pt, page_h_pt)
+        merged = [c for c in merged if not (abs(c["value"]) in [1.0, 2.0, 3.0, 4.0] and len(c["snippet"].strip()) <= 2)]
+        if merged:
+            merged.sort(key=lambda x: x["bbox"][0])
+            return merged[min(col_idx, len(merged) - 1)]
+
+    # 2. Search by row label
     label_item = None
     for item in ocr_items:
         norm = strip_accents(item.get("text", ""))
         if any(kw in norm for kw in label_keywords):
             bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
-            if bbox[0] < 0.48 and bbox[1] > 0.30:  # Must be in lower table section
+            if bbox[0] < 0.50 and min_y <= bbox[1] <= max_y:
                 label_item = (item, bbox)
                 break
 
@@ -164,45 +191,17 @@ def extract_field_value(
 
         row_items = [
             it for it in ocr_items
-            if abs(((polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[1] + polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[3]) / 2.0) - y_center) <= 0.015
+            if abs(((polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[1] + polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[3]) / 2.0) - y_center) <= 0.018
             and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] > 0.45
         ]
-        merged_candidates = merge_row_number_tokens(row_items, page_w_pt, page_h_pt)
-        merged_candidates = [c for c in merged_candidates if not (abs(c["value"]) in [1.0, 2.0, 3.0, 4.0] and len(c["snippet"].strip()) <= 2)]
-
-        if merged_candidates:
-            merged_candidates.sort(key=lambda x: x["bbox"][0])
-            pick = merged_candidates[min(col_idx, len(merged_candidates) - 1)]
-            return pick
-
-    # 2. Search by 2-letter box code
-    code_items = []
-    for item in ocr_items:
-        text = item.get("text", "").strip().upper()
-        if re.search(rf"\b{re.escape(code)}\b", text):
-            bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
-            code_items.append((item, bbox))
-
-    if code_items:
-        valid_codes = [c for c in code_items if 0.15 <= c[1][1] <= 0.95]
-        target_code, c_bbox = valid_codes[-1] if valid_codes else code_items[-1]
-        c_y = (c_bbox[1] + c_bbox[3]) / 2.0
-        c_x = c_bbox[2]
-
-        row_items = [
-            it for it in ocr_items
-            if abs(((polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[1] + polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[3]) / 2.0) - c_y) <= 0.018
-            and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] >= c_x - 0.05
-        ]
-        merged_candidates = merge_row_number_tokens(row_items, page_w_pt, page_h_pt)
-        merged_candidates = [c for c in merged_candidates if not (abs(c["value"]) in [1.0, 2.0, 3.0, 4.0] and len(c["snippet"].strip()) <= 2)]
-
-        if merged_candidates:
-            merged_candidates.sort(key=lambda x: x["bbox"][0])
-            pick = merged_candidates[min(col_idx, len(merged_candidates) - 1)]
-            return pick
+        merged = merge_row_number_tokens(row_items, page_w_pt, page_h_pt)
+        merged = [c for c in merged if not (abs(c["value"]) in [1.0, 2.0, 3.0, 4.0] and len(c["snippet"].strip()) <= 2)]
+        if merged:
+            merged.sort(key=lambda x: x["bbox"][0])
+            return merged[min(col_idx, len(merged) - 1)]
 
     return None
+
 def process_filing(doc_info: dict) -> dict:
     siren = doc_info["siren"]
     doc_id = doc_info["doc_id"]
@@ -214,91 +213,141 @@ def process_filing(doc_info: dict) -> dict:
     doc_fitz = pymupdf.open(pdf_path)
     fields = []
 
-    actif_res = None
-    passif_total_res = None
+    # Helper to push a field
+    def add_field(field_key: str, res: dict | None, p_num: int, field_unit: str = unit):
+        if res and res["value"] is not None:
+            fields.append({
+                "field_key": field_key,
+                "value": res["value"],
+                "unit": field_unit,
+                "page": p_num,
+                "bbox": res["bbox"],
+                "snippet": res["snippet"],
+                "confidence": res["confidence"]
+            })
 
-    # 1. Total Assets: Liasse 2050 (Actif Net)
+    # --- 1. Form 2050 (Actif) ---
     if "2050" in page_map:
         p_num = page_map["2050"]
         p_fitz = doc_fitz[p_num - 1]
-        actif_res = extract_field_value(
-            pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height,
-            code="CL", label_keywords=["total general", "total ( i a vi )", "total (i a vi)"],
-            col_idx=2
-        )
+        w, h = p_fitz.rect.width, p_fitz.rect.height
 
-    # 2. Total Passif (TOTAL GENERAL on Form 2051) for self-check reconciliation
-    if "2051" in page_map:
-        p_num_passif = page_map["2051"]
-        p_fitz_passif = doc_fitz[p_num_passif - 1]
-        passif_total_res = extract_field_value(
-            pages[p_num_passif - 1], p_fitz_passif.rect.width, p_fitz_passif.rect.height,
-            code="DQ", label_keywords=["total general", "total (i a iv)", "total ( i a iv )"],
-            col_idx=0
-        )
+        # BS_TOTAL_ASSETS_FRGAAP (Code CL)
+        res_assets = extract_field_value(pages[p_num - 1], w, h, code="CL", label_keywords=["total general", "total (i a vi)"], col_idx=2, min_y=0.40)
+        
+        # Self-Check reconciliation with Passif (Code DQ)
+        if "2051" in page_map:
+            p_passif = page_map["2051"]
+            p_fitz_passif = doc_fitz[p_passif - 1]
+            res_passif_total = extract_field_value(pages[p_passif - 1], p_fitz_passif.rect.width, p_fitz_passif.rect.height, code="DQ", label_keywords=["total general", "total (i a iv)"], col_idx=0, min_y=0.60)
+            if res_assets and res_passif_total:
+                diff = abs(res_assets["value"] - res_passif_total["value"]) / max(res_assets["value"], res_passif_total["value"])
+                if diff <= 0.015:
+                    res_assets["confidence"] = 1.0
 
-    # Reconciliation Anchor Check (Actif == Passif)
-    if actif_res and passif_total_res:
-        a_val = actif_res["value"]
-        p_val = passif_total_res["value"]
-        # Allow up to 1.5% relative error for minor OCR noise
-        rel_diff = abs(a_val - p_val) / max(a_val, p_val) if max(a_val, p_val) > 0 else 0
-        if rel_diff <= 0.015:
-            actif_res["confidence"] = 1.0  # Confirmed by accounting reconciliation
-        elif a_val <= 50 or (p_val > a_val and a_val < 100000 and p_val > 100000):
-            # If Actif caught an anomalous small line, fallback to reconciled Passif total
-            actif_res = passif_total_res
+        if res_assets and res_assets["value"] > 50:
+            add_field("BS_TOTAL_ASSETS_FRGAAP", res_assets, p_num)
 
-    if actif_res and actif_res["value"] > 50:
-        fields.append({
-            "field_key": "BS_TOTAL_ASSETS_FRGAAP",
-            "value": actif_res["value"],
-            "unit": unit,
-            "page": page_map["2050"],
-            "bbox": actif_res["bbox"],
-            "snippet": actif_res["snippet"],
-            "confidence": actif_res["confidence"],
-        })
+        # BS_CASH_CURRENT_ASSET_FRGAAP (Disponibilités, Code CF)
+        res_cash = extract_field_value(pages[p_num - 1], w, h, code="CF", label_keywords=["disponibilites"], col_idx=2)
+        add_field("BS_CASH_CURRENT_ASSET_FRGAAP", res_cash, p_num)
 
-    # 3. Total Equity: Box code 'DL' or label 'total capitaux propres' on Form 2051
+    # --- 2. Form 2051 (Passif) ---
     if "2051" in page_map:
         p_num = page_map["2051"]
         p_fitz = doc_fitz[p_num - 1]
-        res = extract_field_value(
-            pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height,
-            code="DL", label_keywords=["total capitaux propres", "total i"],
-            col_idx=0
-        )
-        if res and res["value"] > 50:
-            fields.append({
-                "field_key": "BS_TOTAL_EQUITY_FRGAAP",
-                "value": res["value"],
-                "unit": unit,
-                "page": p_num,
-                "bbox": res["bbox"],
-                "snippet": res["snippet"],
-                "confidence": res["confidence"],
-            })
+        w, h = p_fitz.rect.width, p_fitz.rect.height
 
-    # 4. Share Capital: Box code 'DA' or label 'capital social' on Form 2051
-    if "2051" in page_map:
-        p_num = page_map["2051"]
+        # BS_TOTAL_EQUITY_FRGAAP (Code DL)
+        res_eq = extract_field_value(pages[p_num - 1], w, h, code="DL", label_keywords=["total capitaux propres", "total i"], col_idx=0, min_y=0.25)
+        if res_eq and res_eq["value"] > 50:
+            add_field("BS_TOTAL_EQUITY_FRGAAP", res_eq, p_num)
+
+        # BS_CAPITAL_EQUITY_FRGAAP (Code DA)
+        res_cap = extract_field_value(pages[p_num - 1], w, h, code="DA", label_keywords=["capital social", "capital individuel"], col_idx=0, max_y=0.25)
+        if res_cap and res_cap["value"] > 50:
+            add_field("BS_CAPITAL_EQUITY_FRGAAP", res_cap, p_num)
+
+    # --- 3. Form 2052 (Compte de résultat - 1ère partie) ---
+    if "2052" in page_map:
+        p_num = page_map["2052"]
         p_fitz = doc_fitz[p_num - 1]
-        res = extract_field_value(
-            pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height,
-            code="DA", label_keywords=["capital social", "capital individuel"],
-            col_idx=0
-        )
-        if res and res["value"] > 50:
-            fields.append({
-                "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
-                "value": res["value"],
-                "unit": unit,
-                "page": p_num,
-                "bbox": res["bbox"],
-                "snippet": res["snippet"],
-                "confidence": res["confidence"],
-            })
+        w, h = p_fitz.rect.width, p_fitz.rect.height
+
+        # PL_REVENUE_FRGAAP (Code FL)
+        res_rev = extract_field_value(pages[p_num - 1], w, h, code="FL", label_keywords=["chiffre d'affaires net", "total i"], col_idx=0)
+        add_field("PL_REVENUE_FRGAAP", res_rev, p_num)
+
+        # PL_EXT_SERVICES_COSTS_FRGAAP (Code FW)
+        res_ext = extract_field_value(pages[p_num - 1], w, h, code="FW", label_keywords=["autres achats et charges externes"], col_idx=0)
+        add_field("PL_EXT_SERVICES_COSTS_FRGAAP", res_ext, p_num)
+
+        # PL_PERSONNEL_COSTS_FRGAAP (Salaires FY + Charges FZ)
+        res_sal = extract_field_value(pages[p_num - 1], w, h, code="FY", label_keywords=["salaires et traitements"], col_idx=0)
+        res_soc = extract_field_value(pages[p_num - 1], w, h, code="FZ", label_keywords=["charges sociales"], col_idx=0)
+        if res_sal and res_soc:
+            total_pers = res_sal["value"] + res_soc["value"]
+            bbox_pers = [
+                min(res_sal["bbox"][0], res_soc["bbox"][0]),
+                min(res_sal["bbox"][1], res_soc["bbox"][1]),
+                max(res_sal["bbox"][2], res_soc["bbox"][2]),
+                max(res_sal["bbox"][3], res_soc["bbox"][3]),
+            ]
+            add_field("PL_PERSONNEL_COSTS_FRGAAP", {
+                "value": total_pers,
+                "bbox": bbox_pers,
+                "snippet": f"{res_sal['snippet']} + {res_soc['snippet']}",
+                "confidence": round(min(res_sal["confidence"], res_soc["confidence"]), 4)
+            }, p_num)
+        elif res_sal:
+            add_field("PL_PERSONNEL_COSTS_FRGAAP", res_sal, p_num)
+
+        # PL_DEPRECIATION_AMORTIZATION_FRGAAP (Code GA)
+        res_dot = extract_field_value(pages[p_num - 1], w, h, code="GA", label_keywords=["dotations aux amortissements", "dotations d'exploitation"], col_idx=0)
+        add_field("PL_DEPRECIATION_AMORTIZATION_FRGAAP", res_dot, p_num)
+
+        # PL_COGS_FRGAAP (Achats FS + Variation stocks FT)
+        res_fs = extract_field_value(pages[p_num - 1], w, h, code="FS", label_keywords=["achats de marchandises"], col_idx=0)
+        res_ft = extract_field_value(pages[p_num - 1], w, h, code="FT", label_keywords=["variation de stock"], col_idx=0)
+        if res_fs and res_ft:
+            add_field("PL_COGS_FRGAAP", {
+                "value": res_fs["value"] + res_ft["value"],
+                "bbox": [
+                    min(res_fs["bbox"][0], res_ft["bbox"][0]),
+                    min(res_fs["bbox"][1], res_ft["bbox"][1]),
+                    max(res_fs["bbox"][2], res_ft["bbox"][2]),
+                    max(res_fs["bbox"][3], res_ft["bbox"][3]),
+                ],
+                "snippet": f"{res_fs['snippet']} + {res_ft['snippet']}",
+                "confidence": round(min(res_fs["confidence"], res_ft["confidence"]), 4)
+            }, p_num)
+        elif res_fs:
+            add_field("PL_COGS_FRGAAP", res_fs, p_num)
+
+    # --- 4. Form 2053 (Compte de résultat - 2nde partie) ---
+    if "2053" in page_map:
+        p_num = page_map["2053"]
+        p_fitz = doc_fitz[p_num - 1]
+        w, h = p_fitz.rect.width, p_fitz.rect.height
+
+        # PL_FINANCIAL_RESULTS_FRGAAP (Résultat financier, Code GP)
+        res_fin = extract_field_value(pages[p_num - 1], w, h, code="GP", label_keywords=["resultat financier", "total v - vi"], col_idx=0)
+        add_field("PL_FINANCIAL_RESULTS_FRGAAP", res_fin, p_num)
+
+        # PL_INCOME_TAX_FRGAAP (Impôts sur les bénéfices, Code HK)
+        res_tax = extract_field_value(pages[p_num - 1], w, h, code="HK", label_keywords=["impots sur les benefices"], col_idx=0)
+        add_field("PL_INCOME_TAX_FRGAAP", res_tax, p_num)
+
+    # --- 5. Form 2058-C (Divers) ---
+    if "2058-C" in page_map:
+        p_num = page_map["2058-C"]
+        p_fitz = doc_fitz[p_num - 1]
+        w, h = p_fitz.rect.width, p_fitz.rect.height
+
+        # META_AVG_WORKFORCE_FRGAAP (Code YP or text 'effectif')
+        res_wf = extract_field_value(pages[p_num - 1], w, h, code="YP", label_keywords=["effectif moyen du personnel", "effectif moyen"], col_idx=0)
+        if res_wf:
+            add_field("META_AVG_WORKFORCE_FRGAAP", res_wf, p_num, field_unit="count")
 
     return {
         "pdf": pdf_path,
@@ -317,7 +366,7 @@ def run_full_pipeline():
         total_pages += len(pages)
         res = process_filing(doc)
         all_docs_output.append(res)
-        print(f"SIREN {res['siren']} | Matched {len(res['fields'])} fields in {os.path.basename(res['pdf'])}")
+        print(f"SIREN {res['siren']} | Matched {len(res['fields']):2d} fields in {os.path.basename(res['pdf'])}")
 
     elapsed = time.time() - start_time
     sec_per_page = round(elapsed / total_pages, 4) if total_pages else 0.0
@@ -329,7 +378,7 @@ def run_full_pipeline():
             "seconds_per_page": sec_per_page,
             "pages_processed": total_pages,
             "model": "provided OCR + French tax liasse code & geometric regex parser",
-            "notes": "Cost is 0 EUR because extraction relies entirely on the provided OCR and local geometric parsing. High precision prioritized on key balance sheet metrics."
+            "notes": "Cost is 0 EUR because extraction relies entirely on the provided OCR and local geometric parsing. High precision prioritized across all 12 financial fields."
         }
     }
 
