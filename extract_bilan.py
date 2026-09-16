@@ -56,37 +56,60 @@ def polygon_to_norm(polygon: list[list[float]], page_w_pt: float, page_h_pt: flo
     return [round(max(0.0, min(xs) / w_px), 4), round(max(0.0, min(ys) / h_px), 4), round(min(1.0, max(xs) / w_px), 4), round(min(1.0, max(ys) / h_px), 4)]
 
 def clean_number(text: str) -> float | None:
-    clean_text = text.replace(" ", "").replace("\u00a0", "").replace(",", ".")
+    trimmed = text.strip()
+    # Reject explicit date patterns e.g. 30/06/2019
+    if re.search(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b", trimmed):
+        return None
+    # Reject percentage notations e.g. 12 %
+    if "%" in trimmed or "quote-part" in trimmed.lower():
+        return None
+    # Reject official form numbers e.g. 2059-F
+    if re.search(r"205\d-[a-z]|dgfip", trimmed, re.IGNORECASE):
+        return None
+
+    clean_text = trimmed.replace(" ", "").replace("\u00a0", "").replace(",", ".")
     is_neg = False
-    if re.search(r"^\(.*\)$", clean_text.strip()):
+    if re.search(r"^\(.*\)$", clean_text):
         is_neg = True
         clean_text = clean_text.replace("(", "").replace(")", "")
         
     m = re.search(r"[-−]?\d+(\.\d+)?", clean_text)
-    if not m: return None
+    if not m:
+        return None
     try: 
         val = float(m.group(0).replace("−", "-"))
+        # Prevent runaway multi-column concatenations
+        if abs(val) >= 1e11:
+            return None
         return -val if is_neg else val
-    except ValueError: return None
+    except ValueError:
+        return None
 
 def build_column_clusters(ocr_items: list[dict], page_w_pt: float, page_h_pt: float, expected_cols: int) -> list[float]:
     x_centers = [[polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0]] for it in ocr_items if clean_number(it.get("text", "")) is not None and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] > 0.40]
-    
     unique_pts = sorted(list(set(x[0] for x in x_centers)))
     if len(unique_pts) <= expected_cols:
         return unique_pts
-        
     kmeans = KMeans(n_clusters=expected_cols, random_state=42, n_init=1)
     kmeans.fit(x_centers)
     return sorted(kmeans.cluster_centers_.flatten())
 
 def merge_row_number_tokens(items_on_row: list[dict], page_w_pt: float, page_h_pt: float) -> list[dict]:
     sorted_items = sorted([it for it in items_on_row if clean_number(it.get("text", "")) is not None], key=lambda x: polygon_to_norm(x["polygon"], page_w_pt, page_h_pt)[0])
-    if not sorted_items: return []
+    if not sorted_items: 
+        return []
+    
     merged, current_cluster = [], [sorted_items[0]]
     for it in sorted_items[1:]:
-        prev_box, curr_box = polygon_to_norm(current_cluster[-1]["polygon"], page_w_pt, page_h_pt), polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
-        if 0 <= curr_box[0] - prev_box[2] < 0.015 and abs(((curr_box[1] + curr_box[3]) / 2) - ((prev_box[1] + prev_box[3]) / 2)) < 0.012: 
+        prev_box = polygon_to_norm(current_cluster[-1]["polygon"], page_w_pt, page_h_pt)
+        curr_box = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
+        
+        # Strict boundary threshold prevents merging distinct table columns
+        gap = curr_box[0] - prev_box[2]
+        v_diff = abs(((curr_box[1] + curr_box[3]) / 2) - ((prev_box[1] + prev_box[3]) / 2))
+        cluster_w = curr_box[2] - polygon_to_norm(current_cluster[0]["polygon"], page_w_pt, page_h_pt)[0]
+        
+        if 0 <= gap < 0.010 and v_diff < 0.009 and cluster_w < 0.16:
             current_cluster.append(it)
         else:
             merged.append(current_cluster)
@@ -99,46 +122,66 @@ def merge_row_number_tokens(items_on_row: list[dict], page_w_pt: float, page_h_p
         combined_text = " ".join(c.get("text", "").strip() for c in cluster)
         val = clean_number(combined_text)
         if val is not None:
-            results.append({"value": val, "bbox": [min(b[0] for b in all_boxes), min(b[1] for b in all_boxes), max(b[2] for b in all_boxes), max(b[3] for b in all_boxes)], "snippet": combined_text, "confidence": min(float(c.get("score", 0.95)) for c in cluster)})
+            results.append({
+                "value": val, 
+                "bbox": [min(b[0] for b in all_boxes), min(b[1] for b in all_boxes), max(b[2] for b in all_boxes), max(b[3] for b in all_boxes)], 
+                "snippet": combined_text, 
+                "confidence": min(float(c.get("score", 0.95)) for c in cluster)
+            })
     return results
+
+def is_valid_code_match(raw_token: str, code: str) -> bool:
+    token = raw_token.strip().upper()
+    # 2-letter codes (standard 2050 series) are safe via regex boundary
+    if len(code) == 2:
+        return bool(re.search(rf"\b{re.escape(code)}\b", token))
+    # 3-digit numeric codes (simplified 2033 series) must be explicitly bounded
+    return bool(re.search(rf"(\({re.escape(code)}\)|\[{re.escape(code)}\]|\b{re.escape(code)}\b)", token))
 
 def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, codes: list[str], label_keywords: list[str], col_idx: int = 0, expected_cols: int = 2, centroids: list[float] = []) -> dict | None:
     ocr_items = page_data.get("ocr", [])
-    
     target_y, target_x_min = None, 0.0
     
-    # 1. Broad Regex Search (Handles grouped tokens like "Total (CL)")
+    # 1. Box Code Search with token isolation
     for it in reversed(ocr_items):
-        raw_text = it.get("text", "").upper()
-        if any(re.search(rf"\b{code}\b", raw_text) for code in codes):
+        raw_text = it.get("text", "")
+        # Disregard government form headers
+        if "dgfip" in raw_text.lower() or "n° 205" in raw_text.lower():
+            continue
+        if any(is_valid_code_match(raw_text, code) for code in codes):
             bbox = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
-            target_y, target_x_min = (bbox[1] + bbox[3]) / 2.0, bbox[2] - 0.05
-            break
+            # Avoid header/footer page lines
+            if 0.05 <= bbox[1] <= 0.96:
+                target_y, target_x_min = (bbox[1] + bbox[3]) / 2.0, bbox[2] - 0.05
+                break
             
-    # 2. Label Fallback
+    # 2. Row Label Fallback
     if target_y is None:
         for it in ocr_items:
             norm_text = strip_accents(it.get("text", ""))
+            if "dgfip" in norm_text or "n° 205" in norm_text:
+                continue
             bbox = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
-            if any(kw in norm_text for kw in label_keywords) and bbox[0] < 0.55:
+            if any(kw in norm_text for kw in label_keywords) and bbox[0] < 0.50 and 0.05 <= bbox[1] <= 0.96:
                 target_y, target_x_min = (bbox[1] + bbox[3]) / 2.0, 0.40
                 break
 
-    if target_y is None: return None
+    if target_y is None:
+        return None
 
+    # Horizontal row collection with bounded skew cone
     row_items = []
     for it in ocr_items:
         bbox = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
         item_y = (bbox[1] + bbox[3]) / 2.0
         item_x = bbox[0]
-        
-        dynamic_y_tolerance = 0.015 + (max(0, item_x - target_x_min) * 0.040)
+        dynamic_y_tolerance = 0.012 + (max(0, item_x - target_x_min) * 0.035)
         if abs(item_y - target_y) <= dynamic_y_tolerance and item_x >= target_x_min:
             row_items.append(it)
 
     merged = [c for c in merge_row_number_tokens(row_items, page_w_pt, page_h_pt) if not (abs(c["value"]) in [1.0, 2.0, 3.0, 4.0] and len(c["snippet"].strip()) <= 2)]
-    
-    if not merged: return None
+    if not merged:
+        return None
     merged.sort(key=lambda x: x["bbox"][0])
     
     if centroids:
@@ -146,9 +189,10 @@ def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, cod
         best_cand, min_dist = None, float('inf')
         for cand in merged:
             dist = abs(cand["bbox"][0] - target_centroid)
-            if dist < min_dist and dist < 0.10:
+            if dist < min_dist and dist < 0.09:
                 min_dist, best_cand = dist, cand
-        if best_cand: return best_cand
+        if best_cand:
+            return best_cand
         
     return merged[min(col_idx, len(merged) - 1)]
 
@@ -159,7 +203,6 @@ def process_filing(doc_info: dict) -> dict:
     doc_fitz = pymupdf.open(pdf_path)
     fields = []
     
-    # Fast Regex Sub-String Caching
     page_caches = []
     for p in pages:
         raw_text = " ".join(it.get("text", "") for it in p.get("ocr", []))
@@ -174,21 +217,17 @@ def process_filing(doc_info: dict) -> dict:
         best_res = None
         for p_idx, page in enumerate(pages):
             cache = page_caches[p_idx]
-            
-            # Fast String Search allows matching codes embedded in strings like "Total (CL)"
-            has_code = any(re.search(rf"\b{code}\b", cache["raw_upper"]) for code in codes)
+            has_code = any(is_valid_code_match(cache["raw_upper"], code) for code in codes)
             has_label = any(kw in cache["raw_lower"] for kw in label_keywords)
             if not has_code and not has_label:
                 continue
                 
             w, h = doc_fitz[p_idx].rect.width, doc_fitz[p_idx].rect.height
-            
             cache_key = (p_idx, expected_cols)
             if cache_key not in centroid_cache:
                 centroid_cache[cache_key] = build_column_clusters(page.get("ocr", []), w, h, expected_cols)
                 
             res = extract_field_value(page, w, h, codes, label_keywords, col_idx, expected_cols, centroids=centroid_cache[cache_key])
-            
             if res and abs(res["value"]) > 10:
                 res["page"] = p_idx + 1
                 if best_res is None or res["confidence"] > best_res["confidence"]:
@@ -197,32 +236,71 @@ def process_filing(doc_info: dict) -> dict:
 
     def add_field(field_key: str, res: dict | None, field_unit: str = unit):
         if res and res.get("value") is not None:
-            fields.append({"field_key": field_key, "value": res["value"], "unit": field_unit, "page": res["page"], "bbox": res["bbox"], "snippet": res["snippet"], "confidence": res["confidence"]})
+            val = res["value"]
+            # Guardrail: Workforce headcount cannot exceed 10,000 for these mid-size filings
+            if field_key == "META_AVG_WORKFORCE_FRGAAP" and (val > 10000 or val < 0):
+                return
+            fields.append({
+                "field_key": field_key, 
+                "value": val, 
+                "unit": field_unit, 
+                "page": res["page"], 
+                "bbox": res["bbox"], 
+                "snippet": res["snippet"], 
+                "confidence": res["confidence"]
+            })
 
-    # Execute Extractions with expanded labels
-    add_field("BS_TOTAL_ASSETS_FRGAAP", find_best_field_globally(codes=["CL", "090"], label_keywords=["total general", "total de l'actif", "total (i a vi)", "total i a vi"], col_idx=2, expected_cols=4))
-    add_field("BS_CASH_CURRENT_ASSET_FRGAAP", find_best_field_globally(codes=["CF", "086"], label_keywords=["disponibilites", "caisse"], col_idx=2, expected_cols=4))
-    add_field("BS_TOTAL_EQUITY_FRGAAP", find_best_field_globally(codes=["DL", "142"], label_keywords=["total capitaux propres", "total i", "total des capitaux propres"], col_idx=0, expected_cols=2))
-    add_field("BS_CAPITAL_EQUITY_FRGAAP", find_best_field_globally(codes=["DA", "120"], label_keywords=["capital social", "capital individuel"], col_idx=0, expected_cols=2))
-    
+    # 1. Total Assets (Must be anchored on Form 2050/2033-A, not annexes)
+    res_assets = find_best_field_globally(codes=["CL", "090"], label_keywords=["total general", "total de l'actif", "total (i a vi)"], col_idx=2, expected_cols=4)
+    add_field("BS_TOTAL_ASSETS_FRGAAP", res_assets)
+
+    # 2. Cash Assets
+    add_field("BS_CASH_CURRENT_ASSET_FRGAAP", find_best_field_globally(codes=["CF", "086"], label_keywords=["disponibilites"], col_idx=2, expected_cols=4))
+
+    # 3. Total Equity (Sanity check: cannot be a tiny single-digit footnote if assets exist)
+    res_eq = find_best_field_globally(codes=["DL", "142"], label_keywords=["total capitaux propres", "total des capitaux propres"], col_idx=0, expected_cols=2)
+    if res_eq and res_assets and res_assets["value"] > 500000 and res_eq["value"] < 500:
+        res_eq = None
+    add_field("BS_TOTAL_EQUITY_FRGAAP", res_eq)
+
+    # 4. Share Capital (Never match form numbers like 2059)
+    res_cap = find_best_field_globally(codes=["DA", "120"], label_keywords=["capital social", "capital individuel"], col_idx=0, expected_cols=2)
+    if res_cap and int(res_cap["value"]) in [2050, 2051, 2052, 2053, 2059]:
+        res_cap = None
+    add_field("BS_CAPITAL_EQUITY_FRGAAP", res_cap)
+
+    # 5. Core Operational Figures
     add_field("PL_REVENUE_FRGAAP", find_best_field_globally(codes=["FL", "210"], label_keywords=["chiffre d'affaires net", "montant net du chiffre d'affaires"], col_idx=0, expected_cols=2))
     add_field("PL_EXT_SERVICES_COSTS_FRGAAP", find_best_field_globally(codes=["FW", "242"], label_keywords=["autres achats et charges externes", "consommations de l'exercice"], col_idx=0, expected_cols=2))
     add_field("PL_DEPRECIATION_AMORTIZATION_FRGAAP", find_best_field_globally(codes=["GA", "254"], label_keywords=["dotations aux amortissements"], col_idx=0, expected_cols=2))
-    add_field("PL_FINANCIAL_RESULTS_FRGAAP", find_best_field_globally(codes=["GP", "284"], label_keywords=["resultat financier", "resultat de l'exercice"], col_idx=0, expected_cols=2))
+    add_field("PL_FINANCIAL_RESULTS_FRGAAP", find_best_field_globally(codes=["GP", "284"], label_keywords=["resultat financier"], col_idx=0, expected_cols=2))
     add_field("PL_INCOME_TAX_FRGAAP", find_best_field_globally(codes=["HK", "306"], label_keywords=["impots sur les benefices", "impot sur les benefices"], col_idx=0, expected_cols=2))
     add_field("META_AVG_WORKFORCE_FRGAAP", find_best_field_globally(codes=["YP", "376"], label_keywords=["effectif moyen du personnel", "effectif moyen"], col_idx=0, expected_cols=2), field_unit="count")
 
+    # 6. Composite Line Items
     res_sal = find_best_field_globally(codes=["FY", "250"], label_keywords=["salaires et traitements", "charges de personnel"], col_idx=0, expected_cols=2)
     res_soc = find_best_field_globally(codes=["FZ", "252"], label_keywords=["charges sociales"], col_idx=0, expected_cols=2)
     if res_sal and res_soc and res_sal["page"] == res_soc["page"]:
-        add_field("PL_PERSONNEL_COSTS_FRGAAP", {"value": res_sal["value"] + res_soc["value"], "bbox": [min(res_sal["bbox"][0], res_soc["bbox"][0]), min(res_sal["bbox"][1], res_soc["bbox"][1]), max(res_sal["bbox"][2], res_soc["bbox"][2]), max(res_sal["bbox"][3], res_soc["bbox"][3])], "snippet": f"{res_sal['snippet']} + {res_soc['snippet']}", "page": res_sal["page"], "confidence": round(min(res_sal["confidence"], res_soc["confidence"]), 4)})
+        add_field("PL_PERSONNEL_COSTS_FRGAAP", {
+            "value": res_sal["value"] + res_soc["value"], 
+            "bbox": [min(res_sal["bbox"][0], res_soc["bbox"][0]), min(res_sal["bbox"][1], res_soc["bbox"][1]), max(res_sal["bbox"][2], res_soc["bbox"][2]), max(res_sal["bbox"][3], res_soc["bbox"][3])], 
+            "snippet": f"{res_sal['snippet']} + {res_soc['snippet']}", 
+            "page": res_sal["page"], 
+            "confidence": round(min(res_sal["confidence"], res_soc["confidence"]), 4)
+        })
     elif res_sal: 
         add_field("PL_PERSONNEL_COSTS_FRGAAP", res_sal)
 
     res_fs = find_best_field_globally(codes=["FS", "212"], label_keywords=["achats de marchandises"], col_idx=0, expected_cols=2)
     res_ft = find_best_field_globally(codes=["FT", "214"], label_keywords=["variation de stock"], col_idx=0, expected_cols=2)
     if res_fs and res_ft and res_fs["page"] == res_ft["page"]:
-        add_field("PL_COGS_FRGAAP", {"value": res_fs["value"] + res_ft["value"], "bbox": [min(res_fs["bbox"][0], res_ft["bbox"][0]), min(res_fs["bbox"][1], res_ft["bbox"][1]), max(res_fs["bbox"][2], res_ft["bbox"][2]), max(res_fs["bbox"][3], res_ft["bbox"][3])], "snippet": f"{res_fs['snippet']} + {res_ft['snippet']}", "page": res_fs["page"], "confidence": round(min(res_fs["confidence"], res_ft["confidence"]), 4)})
+        add_field("PL_COGS_FRGAAP", {
+            "value": res_fs["value"] + res_ft["value"], 
+            "bbox": [min(res_fs["bbox"][0], res_ft["bbox"][0]), min(res_fs["bbox"][1], res_ft["bbox"][1]), max(res_fs["bbox"][2], res_ft["bbox"][2]), max(res_fs["bbox"][3], res_ft["bbox"][3])], 
+            "snippet": f"{res_fs['snippet']} + {res_ft['snippet']}", 
+            "page": res_fs["page"], 
+            "confidence": round(min(res_fs["confidence"], res_ft["confidence"]), 4)
+        })
     elif res_fs: 
         add_field("PL_COGS_FRGAAP", res_fs)
 
@@ -249,8 +327,8 @@ def run_full_pipeline():
             "cost_eur_per_page": 0.0,
             "seconds_per_page": sec_per_page,
             "pages_processed": total_pages,
-            "model": "Regex Sub-String Cache + K-Means + Accounting Negatives",
-            "notes": "Handled EDI PDF structural grouping where Cerfa codes are merged with labels (e.g. 'Total (CL)'). Maintained sub-second global search efficiency."
+            "model": "Guarded Global Router + K-Means + Accounting Normalization",
+            "notes": "Cost is 0 EUR. Employs token-isolation to reject form headers (e.g. 2059-F), tight column merge thresholds to stop horizontal runaway concatenations, and headcount ceiling checks."
         }
     }
     with open("results.json", "w", encoding="utf-8") as f:
