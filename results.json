@@ -4,64 +4,19 @@
       "pdf": "data/820561470/bilans/pdf/bilan_2023-06-05_6493e4372f502414800f8164.pdf",
       "siren": "820561470",
       "fiscal_year_end": null,
-      "fields": [
-        {
-          "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
-          "value": 10000.0,
-          "unit": "EUR",
-          "page": 7,
-          "bbox": [
-            0.7729,
-            0.16,
-            0.8182,
-            0.1724
-          ],
-          "snippet": "10 000",
-          "confidence": 0.9993723034858704
-        }
-      ]
+      "fields": []
     },
     {
       "pdf": "data/820561470/bilans/pdf/bilan_2023-06-13_6543d3fd08093cdace058668.pdf",
       "siren": "820561470",
       "fiscal_year_end": null,
-      "fields": [
-        {
-          "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
-          "value": 150000.0,
-          "unit": "EUR",
-          "page": 4,
-          "bbox": [
-            0.7544,
-            0.1597,
-            0.807,
-            0.1718
-          ],
-          "snippet": "150 000",
-          "confidence": 0.9994431734085083
-        }
-      ]
+      "fields": []
     },
     {
       "pdf": "data/820561470/bilans/pdf/bilan_2024-01-15_67458f18cea78a70070fa226.pdf",
       "siren": "820561470",
       "fiscal_year_end": null,
-      "fields": [
-        {
-          "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
-          "value": 150000.0,
-          "unit": "EUR",
-          "page": 2,
-          "bbox": [
-            0.7577,
-            0.1426,
-            0.8101,
-            0.1535
-          ],
-          "snippet": "150 000",
-          "confidence": 0.9998993277549744
-        }
-      ]
+      "fields": []
     },
     {
       "pdf": "data/328024377/bilans/pdf/bilan_2020-12-24_63e8ebbb54febda17c19ee7c.pdf",
@@ -105,17 +60,17 @@
       "fields": [
         {
           "field_key": "BS_TOTAL_ASSETS_FRGAAP",
-          "value": 18000.0,
+          "value": 2290400.0,
           "unit": "kEUR",
           "page": 2,
           "bbox": [
-            0.8916,
-            0.4703,
-            0.9507,
-            0.4824
+            0.725,
+            0.9145,
+            0.8095,
+            0.9258
           ],
-          "snippet": "18 000",
-          "confidence": 0.9968463778495789
+          "snippet": "2 290 400",
+          "confidence": 0.9999086260795593
         },
         {
           "field_key": "BS_TOTAL_EQUITY_FRGAAP",
@@ -214,20 +169,6 @@
           ],
           "snippet": "6 899 412",
           "confidence": 0.9994041919708252
-        },
-        {
-          "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
-          "value": 300000.0,
-          "unit": "EUR",
-          "page": 15,
-          "bbox": [
-            0.5877,
-            0.1622,
-            0.6446,
-            0.1744
-          ],
-          "snippet": "300 000",
-          "confidence": 0.9960342645645142
         }
       ]
     },
@@ -249,20 +190,6 @@
           ],
           "snippet": "10 174 922",
           "confidence": 0.9997212290763855
-        },
-        {
-          "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
-          "value": 300000.0,
-          "unit": "EUR",
-          "page": 25,
-          "bbox": [
-            0.5965,
-            0.1563,
-            0.6522,
-            0.1686
-          ],
-          "snippet": "300 000",
-          "confidence": 0.9995980858802795
         }
       ]
     },
@@ -279,44 +206,44 @@
       "fields": [
         {
           "field_key": "BS_TOTAL_ASSETS_FRGAAP",
-          "value": 1807.0,
+          "value": 1807858.0,
           "unit": "EUR",
           "page": 4,
           "bbox": [
             0.7112,
             0.9181,
-            0.7654,
+            0.8051,
             0.9295
           ],
-          "snippet": "1 807",
+          "snippet": "1 807 858",
           "confidence": 0.9997754096984863
         },
         {
           "field_key": "BS_TOTAL_EQUITY_FRGAAP",
-          "value": 147.0,
+          "value": 1147625.0,
           "unit": "EUR",
           "page": 5,
           "bbox": [
-            0.7208,
+            0.7039,
             0.3405,
-            0.7561,
+            0.7971,
             0.353
           ],
-          "snippet": "147",
-          "confidence": 0.9999812245368958
+          "snippet": "1 147 625",
+          "confidence": 0.9999198913574219
         },
         {
           "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
-          "value": 1000.0,
+          "value": 1000000.0,
           "unit": "EUR",
           "page": 5,
           "bbox": [
             0.7003,
             0.1044,
-            0.7577,
+            0.7963,
             0.1181
           ],
-          "snippet": "1 000",
+          "snippet": "1 000 000",
           "confidence": 0.992641270160675
         }
       ]
@@ -377,30 +304,30 @@
       "fields": [
         {
           "field_key": "BS_TOTAL_EQUITY_FRGAAP",
-          "value": 10.0,
+          "value": 1010320.0,
           "unit": "EUR",
           "page": 5,
           "bbox": [
-            0.7389,
+            0.7208,
             0.337,
-            0.7722,
+            0.8099,
             0.3481
           ],
-          "snippet": "010",
-          "confidence": 0.9998250603675842
+          "snippet": "1 010 320",
+          "confidence": 0.9998043179512024
         },
         {
           "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
-          "value": 0.0,
+          "value": 1000000.0,
           "unit": "EUR",
           "page": 5,
           "bbox": [
-            0.7377,
-            0.1202,
-            0.771,
+            0.7208,
+            0.1197,
+            0.8091,
             0.1308
           ],
-          "snippet": "000",
+          "snippet": "1 000 000",
           "confidence": 0.9952359199523926
         }
       ]
@@ -426,17 +353,17 @@
         },
         {
           "field_key": "BS_TOTAL_EQUITY_FRGAAP",
-          "value": 532.0,
+          "value": 532640.0,
           "unit": "EUR",
           "page": 3,
           "bbox": [
             0.8821,
             0.3715,
-            0.9139,
+            0.9481,
             0.3829
           ],
-          "snippet": "532",
-          "confidence": 0.9999648928642273
+          "snippet": "532 640",
+          "confidence": 0.9997873306274414
         },
         {
           "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
@@ -555,7 +482,7 @@
   ],
   "run": {
     "cost_eur_per_page": 0.0,
-    "seconds_per_page": 0.003,
+    "seconds_per_page": 0.0031,
     "pages_processed": 415,
     "model": "provided OCR + French tax liasse code & geometric regex parser",
     "notes": "Cost is 0 EUR because extraction relies entirely on the provided OCR and local geometric parsing. High precision prioritized on key balance sheet metrics."

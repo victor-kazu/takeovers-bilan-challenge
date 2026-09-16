@@ -58,7 +58,7 @@ def classify_pages(pages: list[dict]) -> dict[str, int]:
     for page_idx, page in enumerate(pages, start=1):
         lines = [strip_accents(item.get("text", "")) for item in page.get("ocr", [])]
         combined = " ".join(lines)
-        if "2050" not in mapping and ("2050" in combined or ("bilan" in combined and "actif" in combined and "passif" not in combined[:150])):
+        if "2050" not in mapping and ("2050" in combined or ("bilan" in combined and "actif" in combined and "passif" not in combined[:120])):
             mapping["2050"] = page_idx
         if "2051" not in mapping and ("2051" in combined or ("bilan" in combined and "passif" in combined)):
             mapping["2051"] = page_idx
@@ -85,12 +85,58 @@ def clean_number(text: str) -> float | None:
         return None
     try:
         val = float(m.group(0).replace("−", "-"))
-        # Exclude small single digits that represent table column headings like (1), (2), (3)
-        if abs(val) in [1.0, 2.0, 3.0, 4.0] and len(text.strip()) <= 3:
-            return None
         return val
     except ValueError:
         return None
+
+def merge_row_number_tokens(items_on_row: list[dict], page_w_pt: float, page_h_pt: float) -> list[dict]:
+    """Merge only tightly-spaced digit fragments that belong to the same number."""
+    sorted_items = sorted(
+        [it for it in items_on_row if clean_number(it.get("text", "")) is not None],
+        key=lambda x: polygon_to_norm(x["polygon"], page_w_pt, page_h_pt)[0]
+    )
+
+    if not sorted_items:
+        return []
+
+    merged = []
+    current_cluster = [sorted_items[0]]
+
+    for it in sorted_items[1:]:
+        prev_box = polygon_to_norm(current_cluster[-1]["polygon"], page_w_pt, page_h_pt)
+        curr_box = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
+        
+        # Horizontal gap must be tiny (< 0.012 page width) and vertically aligned
+        gap = curr_box[0] - prev_box[2]
+        v_diff = abs(((curr_box[1] + curr_box[3]) / 2) - ((prev_box[1] + prev_box[3]) / 2))
+        
+        # Only merge if gap is very tight (within the same column cell)
+        if 0 <= gap < 0.012 and v_diff < 0.010:
+            current_cluster.append(it)
+        else:
+            merged.append(current_cluster)
+            current_cluster = [it]
+    merged.append(current_cluster)
+
+    results = []
+    for cluster in merged:
+        all_boxes = [polygon_to_norm(c["polygon"], page_w_pt, page_h_pt) for c in cluster]
+        combined_box = [
+            min(b[0] for b in all_boxes),
+            min(b[1] for b in all_boxes),
+            max(b[2] for b in all_boxes),
+            max(b[3] for b in all_boxes),
+        ]
+        combined_text = " ".join(c.get("text", "").strip() for c in cluster)
+        val = clean_number(combined_text)
+        if val is not None:
+            results.append({
+                "value": val,
+                "bbox": combined_box,
+                "snippet": combined_text,
+                "confidence": min(float(c.get("score", 0.95)) for c in cluster)
+            })
+    return results
 
 def extract_field_value(
     page_data: dict,
@@ -101,80 +147,62 @@ def extract_field_value(
     col_idx: int = 0
 ) -> dict | None:
     ocr_items = page_data.get("ocr", [])
-    
-    # 1. First preference: look for standard 2-letter box code
+
+    # 1. Fallback / direct: Search by row label first if it's a major total line
+    label_item = None
+    for item in ocr_items:
+        norm = strip_accents(item.get("text", ""))
+        if any(kw in norm for kw in label_keywords):
+            bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
+            if bbox[0] < 0.48 and bbox[1] > 0.30:  # Must be in lower table section
+                label_item = (item, bbox)
+                break
+
+    if label_item:
+        _, l_bbox = label_item
+        y_center = (l_bbox[1] + l_bbox[3]) / 2.0
+
+        row_items = [
+            it for it in ocr_items
+            if abs(((polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[1] + polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[3]) / 2.0) - y_center) <= 0.015
+            and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] > 0.45
+        ]
+        merged_candidates = merge_row_number_tokens(row_items, page_w_pt, page_h_pt)
+        merged_candidates = [c for c in merged_candidates if not (abs(c["value"]) in [1.0, 2.0, 3.0, 4.0] and len(c["snippet"].strip()) <= 2)]
+
+        if merged_candidates:
+            merged_candidates.sort(key=lambda x: x["bbox"][0])
+            pick = merged_candidates[min(col_idx, len(merged_candidates) - 1)]
+            return pick
+
+    # 2. Search by 2-letter box code
     code_items = []
     for item in ocr_items:
         text = item.get("text", "").strip().upper()
         if re.search(rf"\b{re.escape(code)}\b", text):
             bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
             code_items.append((item, bbox))
-            
+
     if code_items:
-        valid_codes = [c for c in code_items if 0.1 <= c[1][1] <= 0.95]
+        valid_codes = [c for c in code_items if 0.15 <= c[1][1] <= 0.95]
         target_code, c_bbox = valid_codes[-1] if valid_codes else code_items[-1]
         c_y = (c_bbox[1] + c_bbox[3]) / 2.0
         c_x = c_bbox[2]
 
-        candidates = []
-        for item in ocr_items:
-            bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
-            num = clean_number(item.get("text", ""))
-            if num is None:
-                continue
-            item_y = (bbox[1] + bbox[3]) / 2.0
-            item_x = bbox[0]
-            if item_x >= c_x - 0.05 and abs(item_y - c_y) <= 0.025:
-                candidates.append((item, bbox, num, item_x))
+        row_items = [
+            it for it in ocr_items
+            if abs(((polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[1] + polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[3]) / 2.0) - c_y) <= 0.018
+            and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] >= c_x - 0.05
+        ]
+        merged_candidates = merge_row_number_tokens(row_items, page_w_pt, page_h_pt)
+        merged_candidates = [c for c in merged_candidates if not (abs(c["value"]) in [1.0, 2.0, 3.0, 4.0] and len(c["snippet"].strip()) <= 2)]
 
-        if candidates:
-            candidates.sort(key=lambda x: x[3])
-            pick = candidates[min(col_idx, len(candidates) - 1)]
-            return {
-                "value": pick[2],
-                "bbox": pick[1],
-                "snippet": pick[0].get("text", ""),
-                "confidence": float(pick[0].get("score", 0.95)),
-            }
+        if merged_candidates:
+            merged_candidates.sort(key=lambda x: x["bbox"][0])
+            pick = merged_candidates[min(col_idx, len(merged_candidates) - 1)]
+            return pick
 
-    # 2. Fallback: Horizontal row alignment from label keyword
-    label_item = None
-    for item in ocr_items:
-        norm = strip_accents(item.get("text", ""))
-        if any(kw in norm for kw in label_keywords):
-            bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
-            if bbox[0] < 0.48:
-                label_item = (item, bbox)
-                break
-
-    if not label_item:
-        return None
-
-    _, l_bbox = label_item
-    y_center = (l_bbox[1] + l_bbox[3]) / 2.0
-
-    row_candidates = []
-    for item in ocr_items:
-        bbox = polygon_to_norm(item["polygon"], page_w_pt, page_h_pt)
-        num = clean_number(item.get("text", ""))
-        if num is None:
-            continue
-        item_y = (bbox[1] + bbox[3]) / 2.0
-        if abs(item_y - y_center) <= 0.020 and bbox[0] > 0.45:
-            row_candidates.append((item, bbox, num, bbox[0]))
-
-    if not row_candidates:
-        return None
-
-    row_candidates.sort(key=lambda x: x[3])
-    pick = row_candidates[min(col_idx, len(row_candidates) - 1)]
-    return {
-        "value": pick[2],
-        "bbox": pick[1],
-        "snippet": pick[0].get("text", ""),
-        "confidence": float(pick[0].get("score", 0.90)),
-    }
-
+    return None
 def process_filing(doc_info: dict) -> dict:
     siren = doc_info["siren"]
     doc_id = doc_info["doc_id"]
@@ -186,7 +214,7 @@ def process_filing(doc_info: dict) -> dict:
     doc_fitz = pymupdf.open(pdf_path)
     fields = []
 
-    # 1. Total Assets: Box code 'CL' or label 'total general' on Liasse 2050 (col_idx=2: Net)
+    # 1. Total Assets: Box code 'CL' or label 'total general' on Form 2050 (col_idx=2: Net)
     if "2050" in page_map:
         p_num = page_map["2050"]
         p_fitz = doc_fitz[p_num - 1]
@@ -195,7 +223,7 @@ def process_filing(doc_info: dict) -> dict:
             code="CL", label_keywords=["total general", "total ( i a vi )", "total (i a vi)"],
             col_idx=2
         )
-        if res:
+        if res and res["value"] > 50:  # Ignore small numbers/footers
             fields.append({
                 "field_key": "BS_TOTAL_ASSETS_FRGAAP",
                 "value": res["value"],
@@ -206,7 +234,7 @@ def process_filing(doc_info: dict) -> dict:
                 "confidence": res["confidence"],
             })
 
-    # 2. Total Equity: Box code 'DL' or label 'total capitaux propres' on Liasse 2051
+    # 2. Total Equity: Box code 'DL' or label 'total capitaux propres' on Form 2051
     if "2051" in page_map:
         p_num = page_map["2051"]
         p_fitz = doc_fitz[p_num - 1]
@@ -215,7 +243,7 @@ def process_filing(doc_info: dict) -> dict:
             code="DL", label_keywords=["total capitaux propres", "total i"],
             col_idx=0
         )
-        if res:
+        if res and res["value"] > 50:
             fields.append({
                 "field_key": "BS_TOTAL_EQUITY_FRGAAP",
                 "value": res["value"],
@@ -226,7 +254,7 @@ def process_filing(doc_info: dict) -> dict:
                 "confidence": res["confidence"],
             })
 
-    # 3. Share Capital: Box code 'DA' or label 'capital social' on Liasse 2051
+    # 3. Share Capital: Box code 'DA' or label 'capital social' on Form 2051
     if "2051" in page_map:
         p_num = page_map["2051"]
         p_fitz = doc_fitz[p_num - 1]
@@ -235,7 +263,7 @@ def process_filing(doc_info: dict) -> dict:
             code="DA", label_keywords=["capital social", "capital individuel"],
             col_idx=0
         )
-        if res:
+        if res and res["value"] > 50:
             fields.append({
                 "field_key": "BS_CAPITAL_EQUITY_FRGAAP",
                 "value": res["value"],
