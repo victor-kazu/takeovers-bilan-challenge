@@ -56,7 +56,6 @@ def polygon_to_norm(polygon: list[list[float]], page_w_pt: float, page_h_pt: flo
     return [round(max(0.0, min(xs) / w_px), 4), round(max(0.0, min(ys) / h_px), 4), round(min(1.0, max(xs) / w_px), 4), round(min(1.0, max(ys) / h_px), 4)]
 
 def clean_number(text: str) -> float | None:
-    # Handle accounting parentheses for negative numbers e.g. "(1 000)" -> "-1000"
     clean_text = text.replace(" ", "").replace("\u00a0", "").replace(",", ".")
     is_neg = False
     if re.search(r"^\(.*\)$", clean_text.strip()):
@@ -73,12 +72,11 @@ def clean_number(text: str) -> float | None:
 def build_column_clusters(ocr_items: list[dict], page_w_pt: float, page_h_pt: float, expected_cols: int) -> list[float]:
     x_centers = [[polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0]] for it in ocr_items if clean_number(it.get("text", "")) is not None and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] > 0.40]
     
-    # K-MEANS O(1) BYPASS: If there are exactly or fewer tokens than columns, just sort them!
     unique_pts = sorted(list(set(x[0] for x in x_centers)))
     if len(unique_pts) <= expected_cols:
         return unique_pts
         
-    kmeans = KMeans(n_clusters=expected_cols, random_state=42, n_init=1) # Dropped n_init from 10 to 1
+    kmeans = KMeans(n_clusters=expected_cols, random_state=42, n_init=1)
     kmeans.fit(x_centers)
     return sorted(kmeans.cluster_centers_.flatten())
 
@@ -109,10 +107,10 @@ def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, cod
     
     target_y, target_x_min = None, 0.0
     
-    # 1. Exact Token Search
+    # 1. Broad Regex Search (Handles grouped tokens like "Total (CL)")
     for it in reversed(ocr_items):
-        clean_text = re.sub(r'[^A-Z0-9]', '', it.get("text", "").upper())
-        if clean_text in codes:
+        raw_text = it.get("text", "").upper()
+        if any(re.search(rf"\b{code}\b", raw_text) for code in codes):
             bbox = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
             target_y, target_x_min = (bbox[1] + bbox[3]) / 2.0, bbox[2] - 0.05
             break
@@ -134,7 +132,7 @@ def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, cod
         item_y = (bbox[1] + bbox[3]) / 2.0
         item_x = bbox[0]
         
-        dynamic_y_tolerance = 0.012 + (max(0, item_x - target_x_min) * 0.040)
+        dynamic_y_tolerance = 0.015 + (max(0, item_x - target_x_min) * 0.040)
         if abs(item_y - target_y) <= dynamic_y_tolerance and item_x >= target_x_min:
             row_items.append(it)
 
@@ -161,15 +159,14 @@ def process_filing(doc_info: dict) -> dict:
     doc_fitz = pymupdf.open(pdf_path)
     fields = []
     
+    # Fast Regex Sub-String Caching
     page_caches = []
     for p in pages:
-        tokens = set()
-        raw_text = []
-        for it in p.get("ocr", []):
-            text = it.get("text", "")
-            raw_text.append(text)
-            tokens.add(re.sub(r'[^A-Z0-9]', '', text.upper()))
-        page_caches.append({"tokens": tokens, "raw_lower": strip_accents(" ".join(raw_text))})
+        raw_text = " ".join(it.get("text", "") for it in p.get("ocr", []))
+        page_caches.append({
+            "raw_upper": raw_text.upper(),
+            "raw_lower": strip_accents(raw_text)
+        })
 
     centroid_cache = {}
 
@@ -178,7 +175,8 @@ def process_filing(doc_info: dict) -> dict:
         for p_idx, page in enumerate(pages):
             cache = page_caches[p_idx]
             
-            has_code = any(code in cache["tokens"] for code in codes)
+            # Fast String Search allows matching codes embedded in strings like "Total (CL)"
+            has_code = any(re.search(rf"\b{code}\b", cache["raw_upper"]) for code in codes)
             has_label = any(kw in cache["raw_lower"] for kw in label_keywords)
             if not has_code and not has_label:
                 continue
@@ -201,16 +199,17 @@ def process_filing(doc_info: dict) -> dict:
         if res and res.get("value") is not None:
             fields.append({"field_key": field_key, "value": res["value"], "unit": field_unit, "page": res["page"], "bbox": res["bbox"], "snippet": res["snippet"], "confidence": res["confidence"]})
 
-    add_field("BS_TOTAL_ASSETS_FRGAAP", find_best_field_globally(codes=["CL", "090"], label_keywords=["total general", "total de l'actif", "total (i a vi)"], col_idx=2, expected_cols=4))
-    add_field("BS_CASH_CURRENT_ASSET_FRGAAP", find_best_field_globally(codes=["CF", "086"], label_keywords=["disponibilites"], col_idx=2, expected_cols=4))
-    add_field("BS_TOTAL_EQUITY_FRGAAP", find_best_field_globally(codes=["DL", "142"], label_keywords=["total capitaux propres", "total i"], col_idx=0, expected_cols=2))
+    # Execute Extractions with expanded labels
+    add_field("BS_TOTAL_ASSETS_FRGAAP", find_best_field_globally(codes=["CL", "090"], label_keywords=["total general", "total de l'actif", "total (i a vi)", "total i a vi"], col_idx=2, expected_cols=4))
+    add_field("BS_CASH_CURRENT_ASSET_FRGAAP", find_best_field_globally(codes=["CF", "086"], label_keywords=["disponibilites", "caisse"], col_idx=2, expected_cols=4))
+    add_field("BS_TOTAL_EQUITY_FRGAAP", find_best_field_globally(codes=["DL", "142"], label_keywords=["total capitaux propres", "total i", "total des capitaux propres"], col_idx=0, expected_cols=2))
     add_field("BS_CAPITAL_EQUITY_FRGAAP", find_best_field_globally(codes=["DA", "120"], label_keywords=["capital social", "capital individuel"], col_idx=0, expected_cols=2))
     
-    add_field("PL_REVENUE_FRGAAP", find_best_field_globally(codes=["FL", "210"], label_keywords=["chiffre d'affaires net"], col_idx=0, expected_cols=2))
-    add_field("PL_EXT_SERVICES_COSTS_FRGAAP", find_best_field_globally(codes=["FW", "242"], label_keywords=["autres achats et charges externes"], col_idx=0, expected_cols=2))
+    add_field("PL_REVENUE_FRGAAP", find_best_field_globally(codes=["FL", "210"], label_keywords=["chiffre d'affaires net", "montant net du chiffre d'affaires"], col_idx=0, expected_cols=2))
+    add_field("PL_EXT_SERVICES_COSTS_FRGAAP", find_best_field_globally(codes=["FW", "242"], label_keywords=["autres achats et charges externes", "consommations de l'exercice"], col_idx=0, expected_cols=2))
     add_field("PL_DEPRECIATION_AMORTIZATION_FRGAAP", find_best_field_globally(codes=["GA", "254"], label_keywords=["dotations aux amortissements"], col_idx=0, expected_cols=2))
     add_field("PL_FINANCIAL_RESULTS_FRGAAP", find_best_field_globally(codes=["GP", "284"], label_keywords=["resultat financier", "resultat de l'exercice"], col_idx=0, expected_cols=2))
-    add_field("PL_INCOME_TAX_FRGAAP", find_best_field_globally(codes=["HK", "306"], label_keywords=["impots sur les benefices"], col_idx=0, expected_cols=2))
+    add_field("PL_INCOME_TAX_FRGAAP", find_best_field_globally(codes=["HK", "306"], label_keywords=["impots sur les benefices", "impot sur les benefices"], col_idx=0, expected_cols=2))
     add_field("META_AVG_WORKFORCE_FRGAAP", find_best_field_globally(codes=["YP", "376"], label_keywords=["effectif moyen du personnel", "effectif moyen"], col_idx=0, expected_cols=2), field_unit="count")
 
     res_sal = find_best_field_globally(codes=["FY", "250"], label_keywords=["salaires et traitements", "charges de personnel"], col_idx=0, expected_cols=2)
@@ -250,8 +249,8 @@ def run_full_pipeline():
             "cost_eur_per_page": 0.0,
             "seconds_per_page": sec_per_page,
             "pages_processed": total_pages,
-            "model": "Hash Cache Router + K-Means O(1) Bypass + Accounting Negatives",
-            "notes": "Runtime optimized significantly by bypassing sklearn clustering when columns <= expected_cols. Handled French accounting parentheses for negative values (e.g. `(1 000)` -> `-1000`), fixing calculation drops."
+            "model": "Regex Sub-String Cache + K-Means + Accounting Negatives",
+            "notes": "Handled EDI PDF structural grouping where Cerfa codes are merged with labels (e.g. 'Total (CL)'). Maintained sub-second global search efficiency."
         }
     }
     with open("results.json", "w", encoding="utf-8") as f:
