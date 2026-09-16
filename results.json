@@ -35,7 +35,7 @@
             0.7009
           ],
           "snippet": "3 500 529",
-          "confidence": 0.9990065693855286
+          "confidence": 1.0
         },
         {
           "field_key": "BS_TOTAL_EQUITY_FRGAAP",
@@ -216,7 +216,7 @@
             0.9295
           ],
           "snippet": "1 807 858",
-          "confidence": 0.9997754096984863
+          "confidence": 1.0
         },
         {
           "field_key": "BS_TOTAL_EQUITY_FRGAAP",
@@ -265,7 +265,7 @@
             0.9304
           ],
           "snippet": "1 717 114",
-          "confidence": 0.9996665120124817
+          "confidence": 1.0
         },
         {
           "field_key": "BS_TOTAL_EQUITY_FRGAAP",
@@ -482,7 +482,7 @@
   ],
   "run": {
     "cost_eur_per_page": 0.0,
-    "seconds_per_page": 0.0031,
+    "seconds_per_page": 0.0028,
     "pages_processed": 415,
     "model": "provided OCR + French tax liasse code & geometric regex parser",
     "notes": "Cost is 0 EUR because extraction relies entirely on the provided OCR and local geometric parsing. High precision prioritized on key balance sheet metrics."

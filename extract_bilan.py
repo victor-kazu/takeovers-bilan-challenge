@@ -214,27 +214,53 @@ def process_filing(doc_info: dict) -> dict:
     doc_fitz = pymupdf.open(pdf_path)
     fields = []
 
-    # 1. Total Assets: Box code 'CL' or label 'total general' on Form 2050 (col_idx=2: Net)
+    actif_res = None
+    passif_total_res = None
+
+    # 1. Total Assets: Liasse 2050 (Actif Net)
     if "2050" in page_map:
         p_num = page_map["2050"]
         p_fitz = doc_fitz[p_num - 1]
-        res = extract_field_value(
+        actif_res = extract_field_value(
             pages[p_num - 1], p_fitz.rect.width, p_fitz.rect.height,
             code="CL", label_keywords=["total general", "total ( i a vi )", "total (i a vi)"],
             col_idx=2
         )
-        if res and res["value"] > 50:  # Ignore small numbers/footers
-            fields.append({
-                "field_key": "BS_TOTAL_ASSETS_FRGAAP",
-                "value": res["value"],
-                "unit": unit,
-                "page": p_num,
-                "bbox": res["bbox"],
-                "snippet": res["snippet"],
-                "confidence": res["confidence"],
-            })
 
-    # 2. Total Equity: Box code 'DL' or label 'total capitaux propres' on Form 2051
+    # 2. Total Passif (TOTAL GENERAL on Form 2051) for self-check reconciliation
+    if "2051" in page_map:
+        p_num_passif = page_map["2051"]
+        p_fitz_passif = doc_fitz[p_num_passif - 1]
+        passif_total_res = extract_field_value(
+            pages[p_num_passif - 1], p_fitz_passif.rect.width, p_fitz_passif.rect.height,
+            code="DQ", label_keywords=["total general", "total (i a iv)", "total ( i a iv )"],
+            col_idx=0
+        )
+
+    # Reconciliation Anchor Check (Actif == Passif)
+    if actif_res and passif_total_res:
+        a_val = actif_res["value"]
+        p_val = passif_total_res["value"]
+        # Allow up to 1.5% relative error for minor OCR noise
+        rel_diff = abs(a_val - p_val) / max(a_val, p_val) if max(a_val, p_val) > 0 else 0
+        if rel_diff <= 0.015:
+            actif_res["confidence"] = 1.0  # Confirmed by accounting reconciliation
+        elif a_val <= 50 or (p_val > a_val and a_val < 100000 and p_val > 100000):
+            # If Actif caught an anomalous small line, fallback to reconciled Passif total
+            actif_res = passif_total_res
+
+    if actif_res and actif_res["value"] > 50:
+        fields.append({
+            "field_key": "BS_TOTAL_ASSETS_FRGAAP",
+            "value": actif_res["value"],
+            "unit": unit,
+            "page": page_map["2050"],
+            "bbox": actif_res["bbox"],
+            "snippet": actif_res["snippet"],
+            "confidence": actif_res["confidence"],
+        })
+
+    # 3. Total Equity: Box code 'DL' or label 'total capitaux propres' on Form 2051
     if "2051" in page_map:
         p_num = page_map["2051"]
         p_fitz = doc_fitz[p_num - 1]
@@ -254,7 +280,7 @@ def process_filing(doc_info: dict) -> dict:
                 "confidence": res["confidence"],
             })
 
-    # 3. Share Capital: Box code 'DA' or label 'capital social' on Form 2051
+    # 4. Share Capital: Box code 'DA' or label 'capital social' on Form 2051
     if "2051" in page_map:
         p_num = page_map["2051"]
         p_fitz = doc_fitz[p_num - 1]
