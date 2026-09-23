@@ -34,14 +34,23 @@ TARGET_DOCUMENTS = [
     {"siren": "401009741", "doc_id": "68f0a715f28d8aaf48046416", "pdf": "data/401009741/bilans/pdf/bilan_2025-10-03_68f0a715f28d8aaf48046416.pdf"},
 ]
 
+
+
 def strip_accents(text: str) -> str:
+    """Remove accents and converts everything to lowercase"""
+
     return "".join(c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c)).lower()
 
 def load_ocr_pages(siren: str, doc_id: str) -> list[dict]:
-    files = sorted(glob.glob(os.path.join("data", siren, "bilans", "ocr", doc_id, "page_*.json")))
-    return [json.load(open(f, "r", encoding="utf-8")) for f in files]
+    """Load OCR JSON files for a given SIREN and document ID.
+    Returns a list of dictionaries, each representing a page's OCR data."""
+
+    files = sorted(glob.glob(os.path.join("data", siren, "bilans", "ocr", doc_id, "page_*.json"))) #Sort the OCR JSON files by page number 
+    return [json.load(open(f, "r", encoding="utf-8")) for f in files]                              
 
 def detect_document_unit(pages: list[dict]) -> str:
+    """Detects if the document uses kEUR (thousands of euros) or EUR (euros) based on OCR text patterns."""
+
     keur_patterns = [r"\bk€\b", r"\bkeur\b", r"en milliers", r"milliers d['’]?euros", r"montants.*en k", r"exprimes? en k"]
     for page in pages:
         for item in page.get("ocr", []):
@@ -50,50 +59,63 @@ def detect_document_unit(pages: list[dict]) -> str:
     return "EUR"
 
 def polygon_to_norm(polygon: list[list[float]], page_w_pt: float, page_h_pt: float) -> list[float]:
-    scale = 300.0 / 72.0
-    w_px, h_px = page_w_pt * scale, page_h_pt * scale
-    xs, ys = [p[0] for p in polygon], [p[1] for p in polygon]
+    """Convert a polygon (list of points) to normalized bounding box coordinates [x_min, y_min, x_max, y_max] in the range [0, 1]."""
+
+    scale = 300.0 / 72.0    #300 DPI OCR pixel coordinates by 72 DPI native PDF points
+    w_px, h_px = page_w_pt * scale, page_h_pt * scale   #Converts PDF points to OCR pixel coordinates
+    xs, ys = [p[0] for p in polygon], [p[1] for p in polygon]   #Extract x and y coordinates from the polygon points
     return [round(max(0.0, min(xs) / w_px), 4), round(max(0.0, min(ys) / h_px), 4), round(min(1.0, max(xs) / w_px), 4), round(min(1.0, max(ys) / h_px), 4)]
 
 def clean_number(text: str) -> float | None:
+    """Clean and extract a numeric value from a text string. 
+    Returns None if the text is not a valid number or contains unwanted patterns such as:
+    dates, percentages, and tax form identifiers."""
+
     trimmed = text.strip()
-    if re.search(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b", trimmed):
+    if re.search(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b", trimmed):  #Dates
         return None
-    if "%" in trimmed or "quote-part" in trimmed.lower():
+    if "%" in trimmed or "quote-part" in trimmed.lower():  #Percentages
         return None
-    if re.search(r"205\d-[a-z]|dgfip", trimmed, re.IGNORECASE):
+    if re.search(r"205\d-[a-z]|dgfip", trimmed, re.IGNORECASE):  #Tax form identifiers
         return None
 
-    clean_text = trimmed.replace(" ", "").replace("\u00a0", "").replace(",", ".")
+    clean_text = trimmed.replace(" ", "").replace("\u00a0", "").replace(",", ".") #Converts commas to dots for decimal representation
     is_neg = False
-    if re.search(r"^\(.*\)$", clean_text):
+    if re.search(r"^\(.*\)$", clean_text):  #Negative numbers in parentheses
         is_neg = True
-        clean_text = clean_text.replace("(", "").replace(")", "")
-    elif clean_text.startswith("-") and not re.search(r"^-\d", clean_text):
+        clean_text = clean_text.replace("(", "").replace(")", "") 
+    elif clean_text.startswith("-") and not re.search(r"^-\d", clean_text): 
         clean_text = clean_text.lstrip("-")
 
-    m = re.search(r"[-−]?\d+(\.\d+)?", clean_text)
+    m = re.search(r"[-−]?\d+(\.\d+)?", clean_text) 
     if not m:
         return None
     try: 
-        val = float(m.group(0).replace("−", "-"))
-        if abs(val) >= 1e11:
+        val = float(m.group(0).replace("−", "-")) #Cast string to float 
+        if abs(val) >= 1e11: #Discard values that are too large to be realistic for financial statements
             return None
         return -val if is_neg else val
     except ValueError:
         return None
 
 def build_column_clusters(ocr_items: list[dict], page_w_pt: float, page_h_pt: float, expected_cols: int) -> list[float]:
-    x_centers = [[polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0]] for it in ocr_items if clean_number(it.get("text", "")) is not None and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] > 0.40]
+    """Builds column clusters using KMeans based on the x-coordinates of OCR items that contain valid numbers.
+    Returns a sorted list of cluster centers representing the x-coordinates of the columns."""
+
+
+    x_centers = [[polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0]] for it in ocr_items if clean_number(it.get("text", "")) is not None and polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)[0] > 0.40] #Filtering out items that are too far left (likely labels) and only keeping those with valid numbers
     unique_pts = sorted(list(set(x[0] for x in x_centers)))
-    if len(unique_pts) <= expected_cols:
-        return unique_pts
+    if len(unique_pts) <= expected_cols: #If the number of unique x-coordinates is less than or equal to the expected number of columns, return the unique x-coordinates as the cluster centers. 
+        return unique_pts                #Fast path to avoid unnecessary KMeans computation.
     kmeans = KMeans(n_clusters=expected_cols, random_state=42, n_init=1)
     kmeans.fit(x_centers)
     return sorted(kmeans.cluster_centers_.flatten())
 
 def merge_row_number_tokens(items_on_row: list[dict], page_w_pt: float, page_h_pt: float) -> list[dict]:
-    sorted_items = sorted([it for it in items_on_row if clean_number(it.get("text", "")) is not None], key=lambda x: polygon_to_norm(x["polygon"], page_w_pt, page_h_pt)[0])
+    """Merges OCR items on the same row that are likely part of the same numeric value based on proximity and vertical alignment.
+    Returns a list of merged items with combined text, bounding boxes, and cleaned numeric values."""
+
+    sorted_items = sorted([it for it in items_on_row if clean_number(it.get("text", "")) is not None], key=lambda x: polygon_to_norm(x["polygon"], page_w_pt, page_h_pt)[0]) #Sort items by their x-coordinate (left to right) and filter out those without valid numeric values
     if not sorted_items: 
         return []
     
@@ -102,9 +124,9 @@ def merge_row_number_tokens(items_on_row: list[dict], page_w_pt: float, page_h_p
         prev_box = polygon_to_norm(current_cluster[-1]["polygon"], page_w_pt, page_h_pt)
         curr_box = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
         
-        gap = curr_box[0] - prev_box[2]
-        v_diff = abs(((curr_box[1] + curr_box[3]) / 2) - ((prev_box[1] + prev_box[3]) / 2))
-        cluster_w = curr_box[2] - polygon_to_norm(current_cluster[0]["polygon"], page_w_pt, page_h_pt)[0]
+        gap = curr_box[0] - prev_box[2] #Horizontal gap between the current item and the previous item
+        v_diff = abs(((curr_box[1] + curr_box[3]) / 2) - ((prev_box[1] + prev_box[3]) / 2)) #Vertical difference between the centers of the current and previous items
+        cluster_w = curr_box[2] - polygon_to_norm(current_cluster[0]["polygon"], page_w_pt, page_h_pt)[0] #Width of the current cluster from the first item to the current item
         
         if 0 <= gap < 0.015 and v_diff < 0.012 and cluster_w < 0.16:
             current_cluster.append(it)
@@ -128,12 +150,17 @@ def merge_row_number_tokens(items_on_row: list[dict], page_w_pt: float, page_h_p
     return results
 
 def is_valid_code_match(raw_token: str, code: str) -> bool:
+    """Checks if a raw OCR token matches a given code, considering various formats such as parentheses, brackets, and word boundaries."""
+
     token = raw_token.strip().upper()
     if len(code) == 2:
-        return bool(re.search(rf"\b{re.escape(code)}\b", token))
-    return bool(re.search(rf"(\({re.escape(code)}\)|\[{re.escape(code)}\]|\b{re.escape(code)}\b)", token))
+        return bool(re.search(rf"\b{re.escape(code)}\b", token)) #Match 2-letter codes as whole words only e.g. CL, DL, FL
+    return bool(re.search(rf"(\({re.escape(code)}\)|\[{re.escape(code)}\]|\b{re.escape(code)}\b)", token)) #Match 3-letter codes in parentheses, brackets, or as whole words e.g. (090), [210]
 
 def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, codes: list[str], label_keywords: list[str], col_idx: int = 0, expected_cols: int = 2, centroids: list[float] = []) -> dict | None:
+    """Extracts a field value from a page's OCR data based on specified codes and label keywords.
+    Returns a dictionary containing the extracted value, bounding box, snippet, page number, and confidence"""
+    
     ocr_items = page_data.get("ocr", [])
     target_y, target_x_min = None, 0.0
     matched_code = None
@@ -141,9 +168,9 @@ def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, cod
     # 1. Box Code Search
     for it in reversed(ocr_items):
         raw_text = it.get("text", "")
-        if "dgfip" in raw_text.lower() or "n° 205" in raw_text.lower():
+        if "dgfip" in raw_text.lower() or "n° 205" in raw_text.lower(): #ignore Direction Générale des Finances Publiques references
             continue
-        for code in codes:
+        for code in codes: #Check if the OCR text matches any of the specified codes
             if is_valid_code_match(raw_text, code):
                 bbox = polygon_to_norm(it["polygon"], page_w_pt, page_h_pt)
                 target_y = (bbox[1] + bbox[3]) / 2.0
@@ -154,7 +181,7 @@ def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, cod
             break
             
     # 2. Row Label Fallback
-    if target_y is None:
+    if target_y is None: #If no Cerfa code matches, falls back to label matching e.g. "Total General"
         for it in ocr_items:
             norm_text = strip_accents(it.get("text", ""))
             if "dgfip" in norm_text or "n° 205" in norm_text:
@@ -178,7 +205,7 @@ def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, cod
         if matched_code and token_clean == matched_code:
             continue
             
-        dynamic_y_tolerance = 0.015 + (max(0, item_x - target_x_min) * 0.040)
+        dynamic_y_tolerance = 0.015 + (max(0, item_x - target_x_min) * 0.040) #Dynamic tolerance increases for items further to the right, allowing for slight vertical misalignments in multi-column layouts
         if abs(item_y - target_y) <= dynamic_y_tolerance and item_x >= target_x_min:
             row_items.append(it)
 
@@ -187,7 +214,7 @@ def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, cod
         return None
     merged.sort(key=lambda x: x["bbox"][0])
     
-    if centroids:
+    if centroids: #If column centroids are provided, attempt to match the extracted values to the closest centroid based on x-coordinate proximity. This helps in selecting the correct column value in multi-column layouts.
         target_centroid = centroids[min(col_idx, len(centroids) - 1)]
         best_cand, min_dist = None, float('inf')
         for cand in merged:
@@ -200,6 +227,9 @@ def extract_field_value(page_data: dict, page_w_pt: float, page_h_pt: float, cod
     return merged[min(col_idx, len(merged) - 1)]
 
 def process_filing(doc_info: dict) -> dict:
+    """Processes a single filing document, extracting relevant financial fields from its OCR data and PDF representation.
+    Returns a dictionary containing the PDF path, SIREN, fiscal year end (if detected), and a list of extracted fields with their values, units, page numbers, bounding boxes, snippets, and confidence scores."""
+
     siren, doc_id, pdf_path = doc_info["siren"], doc_info["doc_id"], doc_info["pdf"]
     pages = load_ocr_pages(siren, doc_id)
     unit = detect_document_unit(pages)
@@ -216,13 +246,15 @@ def process_filing(doc_info: dict) -> dict:
 
     centroid_cache = {}
 
-    def find_best_field_globally(codes: list[str], label_keywords: list[str], col_idx: int = 0, expected_cols: int = 2) -> dict | None:
+    def find_best_field_globally(codes: list[str], label_keywords: list[str], col_idx: int = 0, expected_cols: int = 2) -> dict | None: 
+        """Searches across all pages of the document to find the best matching field value based on specified codes and label keywords.
+        Returns the best matching field value with its associated metadata (page number, bounding box, snippet)"""
         best_res = None
         for p_idx, page in enumerate(pages):
             cache = page_caches[p_idx]
-            has_code = any(is_valid_code_match(cache["raw_upper"], code) for code in codes)
+            has_code = any(is_valid_code_match(cache["raw_upper"], code) for code in codes) 
             has_label = any(kw in cache["raw_lower"] for kw in label_keywords)
-            if not has_code and not has_label:
+            if not has_code and not has_label: #If neither the specified codes nor label keywords are found on the page, skip to the next page to optimize processing time.
                 continue
                 
             w, h = doc_fitz[p_idx].rect.width, doc_fitz[p_idx].rect.height
@@ -230,21 +262,24 @@ def process_filing(doc_info: dict) -> dict:
             if cache_key not in centroid_cache:
                 centroid_cache[cache_key] = build_column_clusters(page.get("ocr", []), w, h, expected_cols)
                 
-            res = extract_field_value(page, w, h, codes, label_keywords, col_idx, expected_cols, centroids=centroid_cache[cache_key])
+            res = extract_field_value(page, w, h, codes, label_keywords, col_idx, expected_cols, centroids=centroid_cache[cache_key]) 
             if res and abs(res["value"]) > 10:
                 res["page"] = p_idx + 1
                 if best_res is None or res["confidence"] > best_res["confidence"]:
                     best_res = res
         return best_res
 
-    def add_field(field_key: str, res: dict | None, field_unit: str = unit):
+    def add_field(field_key: str, res: dict | None, field_unit: str = unit): 
+        """Adds a field to the extracted fields list if a valid result is found.
+        Performs additional validation checks based on the field type to ensure data quality and consistency."""
+
         if res and res.get("value") is not None:
             val = res["value"]
-            if field_key in ["BS_TOTAL_ASSETS_FRGAAP", "BS_CASH_CURRENT_ASSET_FRGAAP", "PL_REVENUE_FRGAAP", "BS_CAPITAL_EQUITY_FRGAAP"]:
+            if field_key in ["BS_TOTAL_ASSETS_FRGAAP", "BS_CASH_CURRENT_ASSET_FRGAAP", "PL_REVENUE_FRGAAP", "BS_CAPITAL_EQUITY_FRGAAP"]: #Thesefields cannot be negative
                 val = abs(val)
                 if val <= 0:
                     return
-            if field_key == "BS_CAPITAL_EQUITY_FRGAAP" and int(val) in [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2050, 2051, 2052, 2053, 2058, 2059]:
+            if field_key == "BS_CAPITAL_EQUITY_FRGAAP" and int(val) in [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2050, 2051, 2052, 2053, 2058, 2059]: #Avoid false positives where the capital equity field is mistakenly extracted as a tax form identifier
                 return
             if field_key == "META_AVG_WORKFORCE_FRGAAP":
                 if val > 1000 or val <= 0 or val == 376 or len(res.get("snippet", "").strip()) <= 3:
@@ -304,6 +339,8 @@ def process_filing(doc_info: dict) -> dict:
     return {"pdf": pdf_path, "siren": siren, "fiscal_year_end": None, "fields": fields}
 
 def run_full_pipeline():
+    """Runs the full extraction pipeline for all target documents, processing each document's OCR data and extracting relevant financial fields.
+    Outputs the results to a JSON file and prints a summary of the processing time and pages processed"""
     start_time = time.time()
     total_pages = 0
     all_docs_output = []
