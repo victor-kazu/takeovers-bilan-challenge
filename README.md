@@ -72,7 +72,16 @@ In financial extraction, omitting an unverified figure is preferable to reportin
 ## How AI Tools Were Used
 
 In compliance with the challenge guidelines:
-* **Coordinate Projection Formulation**: AI was used to derive the normalized coordinate transformation formulas (`polygon_to_norm`), mapping 300-DPI pixel space to `[0, 1]` bounding boxes with top-left origins.
-* **Cerfa Box Code Taxonomy**: AI accelerated domain research by indexing corresponding Cerfa line codes across standard (2050–2053) and simplified (2033-A/B) schedules.
-* **Accounting Edge Case Handling**: AI helped identify regressions involving parenthetical negative accounting numbers (e.g., `(1 000)` → `-1000.0`) and leading-hyphen table formatting.
-* **Ground-Truth Box Auditing**: Bounding box outputs were inspected against PDF page layouts using `tools/bbox_viewer.py` to confirm alignment with current Exercise (N) columns.
+
+* **Coordinate Projection Formulation**: AI assisted in scaffolding the coordinate normalization pipeline (`polygon_to_norm`), mapping raw 300-DPI pixel bounding polygons from the OCR payloads into normalized `[x0, y0, x1, y1]` fractional coordinates with a top-left origin `[0.0, 1.0]`.
+* **Cerfa Box Code Taxonomy & Regime Routing**: AI accelerated domain research by indexing corresponding Cerfa line codes across standard (*Régime Réel Normal* / Forms 2050–2053) and simplified (*Régime Réel Simplifié* / Forms 2033-A–B) tax regimes (e.g., mapping Revenue to both `FL` and `210`, and Total Assets to both `CL` and `090`).
+* **Geometric Skew Modeling & "Cone of Vision"**: When early image-level OpenCV affine transformations (`cv2.warpAffine` / `cv2.getRotationMatrix2D`) caused blur and micro-rotation artifacts on straight pages, AI helped design an adaptive geometric "Cone of Vision." This search corridor maintains a narrow vertical tolerance (±0.012) near the anchor label and expands dynamically (±0.040 · Δx) across the page to swallow tilted rows without pulling in adjacent vertical text lines.
+* **Accounting Edge-Case & String Normalization**: AI assisted in crafting parsing rules to handle non-standard accounting syntax:
+  * Extracting French parenthetical negative accounting numbers (e.g., `(1 000)` → `-1000.0`).
+  * Stripping leading table hyphens and dashes so positive values (such as Cash and Revenue) were not wrongly classified as negative.
+  * Designing multi-token clustering heuristics to merge horizontally fragmented digits (e.g., `"1476"` and `"746"` into `1476746`) while enforcing horizontal distance and cluster-width constraints (< 0.16) to prevent runaway multi-column concatenations.
+* **Runtime Optimization & K-Means Bypass**: AI was used to profile and eliminate computational bottlenecks:
+  * Diagnosed a slowdown caused by running K-Means across hundreds of irrelevant pages and helped implement pre-computed raw string/token caches to achieve O(1) page skipping.
+  * Designed an in-memory centroid cache per page.
+  * Added an O(1) K-Means bypass that sorts numbers directly whenever token counts match expected table columns, dropping total execution time from over 240 seconds to under 10 seconds (~0.024s/page).
+* **Output Validation & Schema Compliance**: AI was used to audit intermediate `results.json` files against `results.schema.json` and `financial_fields.json`, verifying coordinate bounds, mandatory field keys, numerical data types, and unit constraints (`count` for workforce, `EUR`/`kEUR` for monetary fields). Ground-truth bounding boxes were cross-checked using `tools/bbox_viewer.py`.
